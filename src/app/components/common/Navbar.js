@@ -1,28 +1,106 @@
-import Image from 'next/image'
-import React from 'react'
+"use client"
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useState } from "react";
+import { Squash as Hamburger } from 'hamburger-react'
+import { useSelector } from "react-redux";
 
-function Navbar() {
+const Navbar = () => {
+    const [menu, setMenu] = useState(false);
+    const authStatus = useSelector((state) => state.auth.authStatus)
+
+    const navItems = [
+        {
+            item: "Home",
+            link: "/",
+            show: true
+        },
+        {
+            item: "About",
+            link: "/about",
+            show: !authStatus
+        },
+        {
+            item: "Pricing",
+            link: "/Pricing",
+            show: !authStatus
+        },
+    ]
     return (
-        <header className='sticky top-0 z-50 w-full transition-all duration-300 bg-white'>
-            <div className='container mx-auto'>
-                <div className='flex h-16 items-center justify-between px-4'>
-                    <div className='flex items-center gap-2 '>
-                        <Image
-                            src={"/next.svg"}
-                            width={100}
-                            height={100}
-                            alt='Logo'
-                        />
-                    </div>
-                    <div className='flex items-end'>
-                      <button>X</button>
-                    </div>
+        <header className="bg-white sticky top-0 w-full z-50 md:px-4">
+            <div className="w-full  flex items-center justify-between py-2 px-4">
+                {/* Logo */}
+                <div className=" w-[30%] md:w-[20%] h-full p-2">
+                    <Link href={"/"} className="w-full h-[73px]">
+                        <div className="w-full flex items-center">
+                            <Image
+                                src={"/logo-cropped.svg"}
+                                alt="Logo"
+                                height={80}
+                                width={80}
+                            />
+                        </div>
+                    </Link>
+                </div>
+
+                {/* Desktop Links */}
+                <div className="w-[300px] hidden md:flex items-center justify-center gap-6 p-2 border-2 border-gray-300 rounded-full">
+                    {navItems.map((navItem, index) => (
+                        navItem.show && (
+                            <button
+                                key={index}
+                                variant="ghost"
+                                className={`bg-[#18B088] px-4 py-2 rounded-full`}
+                            >
+                                <Link href={navItem.link} className="flex items-center ">
+
+                                    <span className="font-bold text-gray-600 text-[14px]">{navItem.item}</span>
+                                </Link>
+                            </button>
+                        )
+                    ))}
+                </div>
+
+                <nav className="hidden md:flex items-center gap-8 text-black">
+                    <Button className="px-8 py-3 rounded-full bg-[#18B088]  text-white hover:bg-green-800 hover: font-medium transition duration-200">
+                        Get Started
+                    </Button>
+
+                </nav>
+
+                {/* Mobile Menu Toggle */}
+                <div className="md:hidden">
+                    <Hamburger toggled={menu} toggle={setMenu} />
                 </div>
 
             </div>
 
+            {/* Mobile Menu */}
+            {menu && (
+                <div className="dropdown-animation w-full absolute top-auto md:hidden px-4 bg-gray-100 p-4 rounded-b-lg overflow-hidden">
+                    <nav className="flex flex-col gap-3 text-black">
+                        {navItems.map((navItem, index) => (
+                            navItem.show && (
+                                <Button
+                                    key={index}
+                                    variant="ghost"
+                                    className={`${menu ? 'justify-start w-full' : 'h-9'} gap-2`}
+                                >
+                                    <Link href={navItem.link} className="flex items-center gap-2">
+                                        <span>{navItem.item}</span>
+                                    </Link>
+                                </Button>
+                            )
+                        ))}
+                        <Button className="px-6 py-3 mt-4 bg-[#18B088] rounded-full text-white hover:bg-green-800 hover:text-black transition duration-200">
+                            Get Started
+                        </Button>
+                    </nav>
+                </div>
+            )}
         </header>
-    )
-}
+    );
+};
 
-export default Navbar
+export default Navbar;
