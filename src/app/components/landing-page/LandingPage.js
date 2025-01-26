@@ -1,10 +1,24 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { GoArrowUpRight } from 'react-icons/go';
 import Script from 'next/script';
+import SkeletonLoader from './loader';
 
 function LandingPage() {
+  const [loading, setloading] = useState(true)
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setloading(false)
+    }, 3000);
+    return () => clearInterval(timerId)
+  }, [])
+
+  if (loading) {
+    return <SkeletonLoader />
+  }
+
   return (
     <div className="w-full h-full relative">
       {/* Load the model-viewer script */}
@@ -17,9 +31,10 @@ function LandingPage() {
       {/* Responsive container for the model-viewer */}
       <div className="model-viewer-container hidden md:block">
         <model-viewer
-          src="/models/Baymax.glb" // Path to your .glb file
+          src="/models/Baymax.glb" 
           alt="A 3D model"
-          camera-controls
+          camera-controls    
+          auto-rotate
           style={{ width: '100%', height: '100%' }}
         ></model-viewer>
       </div>
@@ -59,7 +74,7 @@ function LandingPage() {
         </div>
       </section>
     </div>
-  );
+  )
 }
 
 export default React.memo(LandingPage);
