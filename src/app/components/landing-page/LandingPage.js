@@ -4,9 +4,14 @@ import { Button } from '@/components/ui/button';
 import { GoArrowUpRight } from 'react-icons/go';
 import Script from 'next/script';
 import SkeletonLoader from './loader';
+import Image from 'next/image';
 
 function LandingPage() {
   const [loading, setloading] = useState(true)
+
+  const ImageStyle = {
+    width : "100%"
+  }
 
   useEffect(() => {
     const timerId = setTimeout(() => {
@@ -61,10 +66,20 @@ function LandingPage() {
           </section>
         </div>
       </section>
+      <section className='w-full mt-4 relative flex justify-center md:hidden'>
+        <Image
+        src={"/demo_image.jfif"}
+        alt='DashBoard'
+        width={400}
+        height={300}
+        objectFit='contain'
+        loading='lazy'
+        />
+      </section>
       <section className="w-full mt-8">
         <div className="w-full text-center flex items-center flex-col">
           <h2 className="text-2xl font-bold  md:text-[55px]">Transform Hiring Through Inovation</h2>
-          <div className="w-[60%]">
+          <div className="w-full md:w-[60%] p-2">
             <p className="text-gray-600 text-sm font-bold mt-2 md:mt-6">
               At QuestlyAI, were passionate about redifing the hiring process for modern era. We
               Understand that Trditional methods can be time consuming and hinder the ability to

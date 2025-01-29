@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import CommonLayout from "./common-layout";
+import { Suspense } from "react";
+import SkeletonLoader from "./components/landing-page/loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +26,10 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <CommonLayout>{children}</CommonLayout>
+        <Suspense fallback={<SkeletonLoader />}>
+          <CommonLayout>{children}</CommonLayout>
+        </Suspense>
+
       </body>
     </html>
   );
