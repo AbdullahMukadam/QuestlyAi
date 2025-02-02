@@ -105,7 +105,7 @@ function LandingPage() {
               thumbnailAlt="Hero Video"
             />
           </div>
-          <div className='w-full mt-2 p-1 flex items-center justify-center gap-4 flex-col md:flex-row'>
+          <div className='w-full md:mt-2 p-1 flex items-center justify-center gap-4 flex-col md:flex-row'>
             <div className='w-full p-3 rounded-2xl bg-slate-50'>
               <LockKeyhole size={37} className=' bg-[#18B088] text-white rounded-sm p-2' />
               <div className='w-full p-1 text-start mt-3'>

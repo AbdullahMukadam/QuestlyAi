@@ -28,8 +28,8 @@ const Navbar = () => {
         },
     ]
     return (
-        <header className="bg-white sticky top-0 w-full z-50 md:px-4">
-            <div className="w-full  flex items-center justify-between py-2 px-4">
+        <header className="bg-white/80 backdrop-blur-lg border-b shadow-sm sticky top-0 w-full z-50 md:px-4">
+            <div className="w-full flex items-center justify-between py-2 px-4">
                 {/* Logo */}
                 <div className=" w-[30%] md:w-[20%] h-full p-2">
                     <Link href={"/"} className="w-full h-[73px]">
