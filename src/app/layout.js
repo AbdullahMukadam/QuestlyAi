@@ -26,7 +26,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 
       >
-        <div className="min-h-screen flex flex-col items-center">
+        <div className="min-h-screen flex flex-col items-center bg-slate-50">
           <main className="w-full max-w-7xl mx-auto">
             <Suspense fallback={<SkeletonLoader />}>
               <CommonLayout>{children}</CommonLayout>

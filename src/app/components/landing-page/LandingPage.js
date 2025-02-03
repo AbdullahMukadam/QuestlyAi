@@ -6,10 +6,20 @@ import Script from 'next/script';
 import SkeletonLoader from './loader';
 import Image from 'next/image';
 import HeroVideoDialog from '@/components/ui/hero-video-dialog';
-import { BookmarkCheck, Database, LockKeyhole } from 'lucide-react';
+import { BookmarkCheck, CircleUserRound, Database, LockKeyhole } from 'lucide-react';
+import { LucideUser, LucideLink2, LucideBox, LucideTreeDeciduous } from 'lucide-react';
 
 function LandingPage() {
   const [loading, setloading] = useState(true)
+  const [hoveredIndex, setHoveredIndex] = useState(0);
+
+  const handleMouseEnter = (index) => {
+    setHoveredIndex(index);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+  };
 
   const ImageStyle = {
     width: "100%"
@@ -25,6 +35,33 @@ function LandingPage() {
   if (loading) {
     return <SkeletonLoader />
   }
+
+  const data = [
+    {
+      value: '100K',
+      label: 'Users Active',
+      icon: <LucideUser size={24} />,
+      backgroundColor: 'bg-[##f8f9fa]'
+    },
+    {
+      value: 'Upto 40%',
+      label: 'Reduce Hiring Time',
+      icon: <LucideLink2 size={24} />,
+      backgroundColor: 'bg-[##f8f9fa]'
+    },
+    {
+      value: '30%',
+      label: 'Interview Accuracy',
+      icon: <LucideBox size={24} />,
+      backgroundColor: 'bg-[##f8f9fa]'
+    },
+    {
+      value: '20%',
+      label: 'Employee Rates',
+      icon: <LucideTreeDeciduous size={24} />,
+      backgroundColor: 'bg-[##f8f9fa]'
+    },
+  ];
 
   return (
     <div className="w-full h-full relative">
@@ -127,6 +164,34 @@ function LandingPage() {
                 <p className='text-gray-500 text-sm font-bold'>Comprehensive view of candidate performance across interview enabling you to choose best candidates.</p>
               </div>
             </div>
+          </div>
+          <div className='w-full p-1 md:flex items-center justify-between'>
+            <section className='w-full p-1 flex items-center gap-2 flex-col'>
+              <h3 className='text-2xl font-bold  md:text-[40px]'>Why Choose QuestlyAI?</h3>
+              <p className='text-gray-600 text-sm font-bold mt-2 md:mt-6'>Our Platform has helped Reduced the hiring time upto 40%, increased interview accuracy upto 30% and bought a 20% improvement in employee retention rate. </p>
+              <Button className="px-8 py-3 rounded-full bg-[#18B088] text-black ">
+                Learn More <span>{<GoArrowUpRight color='white' />}</span>
+              </Button>
+            </section>
+            <section className='w-full p-4 border-gray-600 border-[1px] rounded-xl mt-1 grid grid-cols-2 grid-rows-2 gap-3'>
+              {data.map((item, index) => (
+                <div
+                  key={index}
+                  className={`w-full p-4 flex flex-col items-center justify-center rounded-xl 
+                     ${hoveredIndex === index ? 'bg-[#18B088]' : 'bg-slate-100'}`}
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <div className={`flex items-center justify-center w-16 h-16 rounded-full ${hoveredIndex === index ? 'bg-white' : item.backgroundColor}`}>
+                    {item.icon}
+                  </div>
+                  <h4 className={`text-xl font-bold text-center ${hoveredIndex === index ? 'text-white' : 'text-gray-800'}`}>
+                    {item.value}
+                  </h4>
+                  <span className={`text-sm text-center ${hoveredIndex === index ? 'text-white' : 'text-gray-800'}`}>{item.label}</span>
+                </div>
+              ))}
+            </section>
           </div>
         </div>
       </section>
