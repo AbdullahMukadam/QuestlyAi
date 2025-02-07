@@ -8,10 +8,24 @@ import Image from 'next/image';
 import HeroVideoDialog from '@/components/ui/hero-video-dialog';
 import { BookmarkCheck, CircleUserRound, Database, LockKeyhole } from 'lucide-react';
 import { LucideUser, LucideLink2, LucideBox, LucideTreeDeciduous } from 'lucide-react';
+import { Marquee } from '@/components/magicui/marquee';
+
+const ReviewCard = ({ img, name, username, body }) => (
+  <figure className="relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
+    <div className="flex items-center gap-2">
+      <img className="rounded-full" width="32" height="32" alt="" src={img || "/placeholder.svg"} />
+      <div>
+        <figcaption className="text-sm font-medium">{name}</figcaption>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{username}</p>
+      </div>
+    </div>
+    <blockquote className="mt-2 text-sm">{body}</blockquote>
+  </figure>
+)
 
 function LandingPage() {
   const [loading, setloading] = useState(true);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(0);
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -31,6 +45,28 @@ function LandingPage() {
   if (loading) {
     return <SkeletonLoader />;
   }
+
+  const reviews = [
+    {
+      name: "Jack",
+      username: "@jack",
+      body: "I've never seen anything like this before. It's amazing. I love it.",
+      img: "https://avatar.vercel.sh/jack",
+    },
+    {
+      name: "Jill",
+      username: "@jill",
+      body: "I don't know what to say. I'm speechless. This is amazing.",
+      img: "https://avatar.vercel.sh/jill",
+    },
+    {
+      name: "Alex",
+      username: "@Alex",
+      body: "I don't know what to say. I'm speechless. This is amazing.",
+      img: "https://avatar.vercel.sh/jill",
+    },
+    // ... add more reviews as needed
+  ]
 
   const data = [
     {
@@ -208,8 +244,8 @@ function LandingPage() {
       </section>
 
       {/* Features Image Section */}
-      <section className="w-full mt-8 px-4">
-        <div className="w-full flex flex-col items-center gap-4">
+      <section className="w-full mt-8 px-4 md:flex items-center justify-between">
+        <div className="w-full flex flex-col items-center gap-4 text-center">
           <h3 className="text-2xl font-bold md:text-4xl">Powerful Features for Enhanced Experience</h3>
           <Image
             width={600}
@@ -220,7 +256,72 @@ function LandingPage() {
             loading="lazy"
           />
         </div>
+        <div className='hidden md:flex w-full flex-col items-center gap-4 pt-8'>
+          <p className='text-gray-600 md:hidden lg:block text-[10px] md:text-base text-center font-bold mt-2 md:mt-4'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor orci et justo condimentum laoreet. Ut vestibulum lorem vitae felis vulputate maximus.</p>
+          <div className='w-full bg-slate-100 rounded-xl p-5'>
+            <h3 className='text-2xl font-bold md:text-4xl'>Behavioral Analysis</h3>
+            <p className='text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor orci et justo condimentum laoreet. Ut vestibulum lorem vitae felis vulputate maximus.</p>
+            <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700">
+              Learn More <GoArrowUpRight className="inline ml-2 text-white" />
+            </Button>
+          </div>
+          <div className='w-full bg-slate-100 rounded-xl p-5'>
+            <h3 className='text-2xl font-bold md:text-4xl'>Behavioral Analysis</h3>
+            <p className='text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor orci et justo condimentum laoreet. Ut vestibulum lorem vitae felis vulputate maximus.</p>
+            <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700">
+              Learn More <GoArrowUpRight className="inline ml-2 text-white" />
+            </Button>
+          </div>
+        </div>
       </section>
+
+      <section className='w-full mt-4 px-4'>
+        <div className="relative flex h-[500px] w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border bg-background md:shadow-xl">
+          <h3 className='text-2xl font-bold text-center md:text-4xl'>More than 1000 Users <br /> Testimony this Product</h3>
+          <p className='text-gray-600 text-sm text-center md:text-base font-bold mt-2 md:mt-4'>let our users tell you how their opinion about using QuestlyAI as their partner.</p>
+          <Marquee pauseOnHover className="[--duration:20s]">
+            {reviews.map((review) => (
+              <ReviewCard key={review.username} {...review} />
+            ))}
+          </Marquee>
+          <Marquee reverse pauseOnHover className="[--duration:20s]">
+            {reviews.map((review) => (
+              <ReviewCard key={review.username} {...review} />
+            ))}
+          </Marquee>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-[20%] md:w-1/3 bg-gradient-to-r from-white dark:from-background"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-[20%] md:w-1/3 bg-gradient-to-l from-white dark:from-background"></div>
+        </div>
+      </section>
+      <section className='w-full md:h-[450px] mt-4 px-4 flex items-center justify-between bg-emerald-500 rounded-2xl'>
+        <div className='w-full p-1'>
+          <h3 className='text-xl text-white text-center md:text-4xl'>Ready to Revolutionalise <br /> your Hiring?</h3>
+          <p className='text-white hidden md:block text-sm text-center md:text-base mt-2 md:mt-4'>let our users tell you how their opinion about using QuestlyAI as their partner.</p>
+          <div className='w-full flex items-center justify-center gap-3'>
+            <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-white text-black hover:bg-gray-50">
+              Get Started <GoArrowUpRight className="inline ml-2 text-black" />
+            </Button>
+            <Button className="mt-4 hidden md:flex px-6 py-2 md:px-8 md:py-3 rounded-full bg-gray-200 text-black hover:bg-gray-50">
+              Get Started <GoArrowUpRight className="inline ml-2 text-black" />
+            </Button>
+          </div>
+        </div>
+        <div className='w-full p-1 overflow-hidden'>
+          <Image
+            width={600}
+            height={400}
+            src="/lady.svg"
+            alt="Features"
+            className="w-full h-auto"
+            loading="lazy"
+            objectFit='contain'
+            
+          />
+        </div>
+      </section>
+      <footer className='w-full'>
+
+      </footer>
     </div>
   );
 }
