@@ -9,6 +9,7 @@ import HeroVideoDialog from '@/components/ui/hero-video-dialog';
 import { BookmarkCheck, CircleUserRound, Database, LockKeyhole } from 'lucide-react';
 import { LucideUser, LucideLink2, LucideBox, LucideTreeDeciduous } from 'lucide-react';
 import { Marquee } from '@/components/magicui/marquee';
+import Footer from '../common/Footer';
 
 const ReviewCard = ({ img, name, username, body }) => (
   <figure className="relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
@@ -115,7 +116,7 @@ function LandingPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="w-full md:absolute md:top-[5%] pt-6 md:pt-14 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-20 px-4">
+      <section className="w-full md:absolute md:top-[0%] lg:top-[5%] pt-6 md:pt-14 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-20 px-4">
         <div className="w-full text-center md:text-left">
           <h1 className="text-2xl font-bold md:text-5xl lg:text-6xl">
             All-in-One AI <span className="block md:inline">Interviewer Platform</span>
@@ -257,17 +258,17 @@ function LandingPage() {
           />
         </div>
         <div className='hidden md:flex w-full flex-col items-center gap-4 pt-8'>
-          <p className='text-gray-600 md:hidden lg:block text-[10px] md:text-base text-center font-bold mt-2 md:mt-4'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor orci et justo condimentum laoreet. Ut vestibulum lorem vitae felis vulputate maximus.</p>
+          <p className='text-gray-600 md:hidden lg:block text-[10px] md:text-base text-center font-bold mt-2 md:mt-4'>Our features are meticulously crafted to empower you with tools you need to make informed decisions, foster a fair evaluation environment , and ultimately build exceptional teams.</p>
           <div className='w-full bg-slate-100 rounded-xl p-5'>
             <h3 className='text-2xl font-bold md:text-4xl'>Behavioral Analysis</h3>
-            <p className='text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor orci et justo condimentum laoreet. Ut vestibulum lorem vitae felis vulputate maximus.</p>
+            <p className='text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4'>Leverage NLP and video analysis to gain insights into candidates, communication skills, body language and cultural fit, helping you make hoistics hiring decisions.</p>
             <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700">
               Learn More <GoArrowUpRight className="inline ml-2 text-white" />
             </Button>
           </div>
           <div className='w-full bg-slate-100 rounded-xl p-5'>
-            <h3 className='text-2xl font-bold md:text-4xl'>Behavioral Analysis</h3>
-            <p className='text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor orci et justo condimentum laoreet. Ut vestibulum lorem vitae felis vulputate maximus.</p>
+            <h3 className='text-2xl font-bold md:text-4xl'>Real Time Feedback</h3>
+            <p className='text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4'>Get AI generated feedbacks during live interviews, assisting interviewers in asking follow-up questions and addressing potential concerns.</p>
             <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700">
               Learn More <GoArrowUpRight className="inline ml-2 text-white" />
             </Button>
@@ -293,35 +294,31 @@ function LandingPage() {
           <div className="pointer-events-none absolute inset-y-0 right-0 w-[20%] md:w-1/3 bg-gradient-to-l from-white dark:from-background"></div>
         </div>
       </section>
-      <section className='w-full md:h-[450px] mt-4 px-4 flex items-center justify-between bg-emerald-500 rounded-2xl'>
+      <section className='w-full md:h-[450px] mt-4 px-4 flex items-center justify-between bg-emerald-600 rounded-t-2xl'>
         <div className='w-full p-1'>
           <h3 className='text-xl text-white text-center md:text-4xl'>Ready to Revolutionalise <br /> your Hiring?</h3>
           <p className='text-white hidden md:block text-sm text-center md:text-base mt-2 md:mt-4'>let our users tell you how their opinion about using QuestlyAI as their partner.</p>
           <div className='w-full flex items-center justify-center gap-3'>
-            <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-white text-black hover:bg-gray-50">
+            <Button className="mt-4 px-4 py-2 md:px-8 md:py-3 rounded-full bg-white text-black hover:bg-gray-50">
               Get Started <GoArrowUpRight className="inline ml-2 text-black" />
             </Button>
-            <Button className="mt-4 hidden md:flex px-6 py-2 md:px-8 md:py-3 rounded-full bg-gray-200 text-black hover:bg-gray-50">
-              Get Started <GoArrowUpRight className="inline ml-2 text-black" />
+            <Button className="mt-4 hidden md:flex px-6 py-2 md:px-8 md:py-3 rounded-full bg-transparent border-[1px] border-white text-black hover:bg-gray-50">
+              Learn More <GoArrowUpRight className="inline ml-2 text-black" />
             </Button>
           </div>
         </div>
-        <div className='w-full p-1 overflow-hidden'>
+        <div className='w-full p-1 overflow-hidden rounded-2xl'>
           <Image
-            width={600}
-            height={400}
-            src="/lady.svg"
-            alt="Features"
-            className="w-full h-auto"
+            width={400}
+            height={200}
+            src="/woman.jpg"
+            alt="Woman"
+            className="w-full h-full object-contain rounded-2xl transition-transform duration-300 ease-in-out hover:scale-[1.1]"
             loading="lazy"
-            objectFit='contain'
-            
           />
         </div>
       </section>
-      <footer className='w-full'>
-
-      </footer>
+      <Footer />
     </div>
   );
 }

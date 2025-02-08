@@ -5,10 +5,13 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Squash as Hamburger } from 'hamburger-react'
 import { useSelector } from "react-redux";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
     const [menu, setMenu] = useState(false);
     const authStatus = useSelector((state) => state.auth.authStatus)
+    const pathname = usePathname()
+   
 
     const navItems = [
         {
@@ -51,7 +54,7 @@ const Navbar = () => {
                             <button
                                 key={index}
                                 variant="ghost"
-                                className={`bg-[#18B088] px-4 py-2 rounded-full`}
+                                className={`${pathname.toString() === navItem.link ? "bg-[#18B088]" : ""} px-4 py-2 rounded-full hover:bg-[#18b087a6]`}
                             >
                                 <Link href={navItem.link} className="flex items-center ">
 
