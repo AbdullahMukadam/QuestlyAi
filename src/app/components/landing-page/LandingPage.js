@@ -245,41 +245,57 @@ function LandingPage() {
       </section>
 
       {/* Features Image Section */}
-      <section className="w-full mt-8 px-4 md:flex items-center justify-between">
-        <div className="w-full flex flex-col items-center gap-4 text-center">
-          <h3 className="text-2xl font-bold md:text-4xl">Powerful Features for Enhanced Experience</h3>
-          <Image
-            width={600}
-            height={400}
-            src="/Features-img.svg"
-            alt="Features"
-            className="w-full h-auto"
-            loading="lazy"
-          />
-        </div>
-        <div className='hidden md:flex w-full flex-col items-center gap-4 pt-8'>
-          <p className='text-gray-600 md:hidden lg:block text-[10px] md:text-base text-center font-bold mt-2 md:mt-4'>Our features are meticulously crafted to empower you with tools you need to make informed decisions, foster a fair evaluation environment , and ultimately build exceptional teams.</p>
-          <div className='w-full bg-slate-100 rounded-xl p-5'>
-            <h3 className='text-2xl font-bold md:text-4xl'>Behavioral Analysis</h3>
-            <p className='text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4'>Leverage NLP and video analysis to gain insights into candidates, communication skills, body language and cultural fit, helping you make hoistics hiring decisions.</p>
-            <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700">
-              Learn More <GoArrowUpRight className="inline ml-2 text-white" />
-            </Button>
+      <section className="w-full py-16 px-4">
+        <div className="max-w-7xl mx-auto md:flex items-center justify-between gap-8">
+          <div className="w-full flex flex-col items-center gap-6 text-center mb-8 md:mb-0">
+            <h3 className="text-2xl md:text-4xl font-bold leading-tight">
+              Powerful Features for Enhanced Experience
+            </h3>
+            <Image
+              width={600}
+              height={400}
+              src="/Features-img.svg"
+              alt="Features"
+              className="w-full h-auto max-w-2xl"
+              loading="lazy"
+            />
           </div>
-          <div className='w-full bg-slate-100 rounded-xl p-5'>
-            <h3 className='text-2xl font-bold md:text-4xl'>Real Time Feedback</h3>
-            <p className='text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4'>Get AI generated feedbacks during live interviews, assisting interviewers in asking follow-up questions and addressing potential concerns.</p>
-            <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700">
-              Learn More <GoArrowUpRight className="inline ml-2 text-white" />
-            </Button>
+          <div className="hidden md:flex w-full flex-col gap-6">
+            <p className="text-gray-600 text-base lg:text-lg text-center font-medium">
+              Our features are meticulously crafted to empower you with tools you need to make informed decisions, foster a fair evaluation environment, and ultimately build exceptional teams.
+            </p>
+            <div className="space-y-6">
+              <div className="bg-slate-100 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                <h3 className="text-2xl md:text-3xl font-bold mb-3">Behavioral Analysis</h3>
+                <p className="text-gray-600 text-base font-medium mb-4">
+                  Leverage NLP and video analysis to gain insights into candidates, communication skills, body language and cultural fit, helping you make holistic hiring decisions.
+                </p>
+                <Button className="px-6 py-2.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
+                  Learn More <GoArrowUpRight className="inline ml-2" />
+                </Button>
+              </div>
+              <div className="bg-slate-100 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                <h3 className="text-2xl md:text-3xl font-bold mb-3">Real Time Feedback</h3>
+                <p className="text-gray-600 text-base font-medium mb-4">
+                  Get AI generated feedbacks during live interviews, assisting interviewers in asking follow-up questions and addressing potential concerns.
+                </p>
+                <Button className="px-6 py-2.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
+                  Learn More <GoArrowUpRight className="inline ml-2" />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className='w-full mt-4 px-4'>
-        <div className="relative flex h-[500px] w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border bg-background md:shadow-xl">
-          <h3 className='text-2xl font-bold text-center md:text-4xl'>More than 1000 Users <br /> Testimony this Product</h3>
-          <p className='text-gray-600 text-sm text-center md:text-base font-bold mt-2 md:mt-4'>let our users tell you how their opinion about using QuestlyAI as their partner.</p>
+      <section className="w-full py-16 px-4">
+        <div className="relative max-w-7xl mx-auto h-[500px] flex flex-col items-center justify-center gap-6 overflow-hidden rounded-xl border bg-background shadow-lg">
+          <h3 className="text-2xl md:text-4xl font-bold text-center leading-tight">
+            More than 1000 Users <br /> Testimony this Product
+          </h3>
+          <p className="text-gray-600 text-base md:text-lg font-medium text-center max-w-2xl">
+            Let our users tell you how their opinion about using QuestlyAI as their partner.
+          </p>
           <Marquee pauseOnHover className="[--duration:20s]">
             {reviews.map((review) => (
               <ReviewCard key={review.username} {...review} />
@@ -290,32 +306,39 @@ function LandingPage() {
               <ReviewCard key={review.username} {...review} />
             ))}
           </Marquee>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-[20%] md:w-1/3 bg-gradient-to-r from-white dark:from-background"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-[20%] md:w-1/3 bg-gradient-to-l from-white dark:from-background"></div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-white dark:from-background" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-white dark:from-background" />
         </div>
       </section>
-      <section className='w-full md:h-[450px] mt-4 px-4 flex items-center justify-between bg-emerald-600 rounded-t-2xl'>
-        <div className='w-full p-1'>
-          <h3 className='text-xl text-white text-center md:text-4xl'>Ready to Revolutionalise <br /> your Hiring?</h3>
-          <p className='text-white hidden md:block text-sm text-center md:text-base mt-2 md:mt-4'>let our users tell you how their opinion about using QuestlyAI as their partner.</p>
-          <div className='w-full flex items-center justify-center gap-3'>
-            <Button className="mt-4 px-4 py-2 md:px-8 md:py-3 rounded-full bg-white text-black hover:bg-gray-50">
-              Get Started <GoArrowUpRight className="inline ml-2 text-black" />
-            </Button>
-            <Button className="mt-4 hidden md:flex px-6 py-2 md:px-8 md:py-3 rounded-full bg-transparent border-[1px] border-white text-black hover:bg-gray-50">
-              Learn More <GoArrowUpRight className="inline ml-2 text-black" />
-            </Button>
+
+      <section className="w-full bg-emerald-600 rounded-t-2xl mt-4">
+        <div className="max-w-7xl mx-auto px-4 py-16 md:h-[450px] flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="w-full text-center md:text-left">
+            <h3 className="text-2xl md:text-4xl text-white font-bold leading-tight mb-4">
+              Ready to Revolutionize <br /> your Hiring?
+            </h3>
+            <p className="text-white/90 text-base md:text-lg mb-6 hidden md:block">
+              Let our users tell you how their opinion about using QuestlyAI as their partner.
+            </p>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <Button className="px-6 py-2.5 rounded-full bg-white text-black hover:bg-gray-100 transition-colors">
+                Get Started <GoArrowUpRight className="inline ml-2" />
+              </Button>
+              <Button className="hidden md:flex px-6 py-2.5 rounded-full bg-transparent border border-white text-white hover:bg-white/10 transition-colors">
+                Learn More <GoArrowUpRight className="inline ml-2" />
+              </Button>
+            </div>
           </div>
-        </div>
-        <div className='w-full p-1 overflow-hidden rounded-2xl'>
-          <Image
-            width={400}
-            height={200}
-            src="/woman.jpg"
-            alt="Woman"
-            className="w-full h-full object-contain rounded-2xl transition-transform duration-300 ease-in-out hover:scale-[1.1]"
-            loading="lazy"
-          />
+          <div className="w-full overflow-hidden rounded-2xl">
+            <Image
+              width={400}
+              height={200}
+              src="/woman.jpg"
+              alt="Woman"
+              className="w-full h-full object-cover rounded-2xl transition-transform duration-300 ease-in-out hover:scale-105"
+              loading="lazy"
+            />
+          </div>
         </div>
       </section>
       <Footer />

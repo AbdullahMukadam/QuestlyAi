@@ -7,11 +7,15 @@ import {
     FaGoogle,
     FaGithub
 } from "react-icons/fa";
+import { MdEdit } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSignUp } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button";
+import { useDispatch } from "react-redux";
+import { login } from "@/app/store/AuthSlice";
 
 const commonStyles = {
     inputIcon:
@@ -34,12 +38,65 @@ const Page = () => {
     const [loading, setloading] = useState(false)
     const { isLoaded, setActive, signUp } = useSignUp()
     const [verifying, setverifying] = useState(false)
+    const [otpvalues, setotpvalues] = useState(["", "", "", "", "", ""])
+    const refs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()]
+    const router = useRouter()
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        if (verifying) refs[0].current.focus()
+
+    }, [verifying])
 
     const handleChange = (e) => {
         setuserData((prev) => ({
             ...prev,
             [e.target.id]: e.target.value
         }))
+    }
+
+    const handleOTPchange = (e, index) => {
+        const val = e.target.value
+        if (isNaN(val)) return
+
+        if (index < otpvalues.length - 1) {
+
+
+            refs[index + 1].current.focus()
+        }
+
+        const copyOtpvalues = [...otpvalues]
+        copyOtpvalues[index] = val
+        setotpvalues(copyOtpvalues)
+
+    }
+
+    const handleOTPback = (e, index) => {
+
+        if (e.keyCode === 8) {
+            const copyOtpvalues = [...otpvalues]
+            copyOtpvalues[index] = ""
+            setotpvalues(copyOtpvalues)
+
+            if (index > 0) {
+                refs[index - 1].current.focus()
+            }
+
+
+        }
+
+
+    }
+
+    const handlePaste = (e) => {
+        const pastedData = e.clipboardData.getData("text")
+        console.log(pastedData)
+
+        if (pastedData.length > otpvalues.length || !Number(pastedData)) return;
+
+        const splitedData = pastedData.split("")
+        setotpvalues(splitedData)
+        refs[otpvalues.length - 1].current.focus()
     }
 
     const handleSubmit = async (e) => {
@@ -61,13 +118,74 @@ const Page = () => {
 
         } catch (error) {
             console.log("Error in Sign Up", error)
+        } finally {
+            setloading(false)
+        }
+    }
+
+    const handleOTPVerification = async () => {
+        if (!isLoaded) return
+
+
+        try {
+            setloading(true)
+
+            const simplifiedCode = otpvalues.join("")
+
+
+            const signUpAttempt = await signUp.attemptEmailAddressVerification({
+                code: simplifiedCode
+            })
+
+            const userData = {
+                userId: signUpAttempt?.createdUserId,
+                emailAddress: signUpAttempt?.emailAddress,
+                username: signUpAttempt?.username
+            }
+
+            if (signUpAttempt.status === 'complete') {
+                await setActive({ session: signUpAttempt.createdSessionId })
+                console.log(signUpAttempt)
+
+                dispatch(login(userData))
+                router.push('/')
+            } else {
+                console.error(JSON.stringify(signUpAttempt, null, 2))
+            }
+        } catch (error) {
+            console.log("Error in verifying code", error)
+        } finally {
+            setloading(false)
         }
     }
 
     if (verifying) {
         return (
-            <div className="bg-white">
-                <h1>Email Verification</h1>
+            <div className="w-full p-4 flex items-center justify-center">
+                <div className="w-[350px] md:w-[500px] p-4 rounded-2xl border-[1px] text-center bg-white shadow-md">
+                    <h1 className="font-bold text-center">Email Verification</h1>
+                    <p className="text-sm text-gray-600">Enter you Verification Code send to your Email</p>
+                    <span className="text-sm text-gray-500">{userData.emailAddress || "dummy@gmail.com"}<button className="font-bold ml-2 text-center"><MdEdit className="font-bold text-black" /></button></span>
+                    <div className="w-full mt-7 ">
+                        {otpvalues.map((otp, index) => ((
+                            <input
+                                ref={refs[index]}
+                                key={index}
+                                className="w-10 border-2 p-2 ml-2 text-center"
+                                maxLength={1}
+                                value={otp}
+                                onPaste={handlePaste}
+                                onChange={(e) => handleOTPchange(e, index)}
+                                onKeyDown={(e) => handleOTPback(e, index)}
+                            />
+                        )))}
+                        <p className=" mt-2 text-sm text-gray-800 ">Didn't receive code? <button className="">Resend</button></p>
+                    </div>
+                    <div className="w-full mt-5">
+                        <Button onClick={handleOTPVerification} disabled={loading}>{loading ? "Verifying" : "Continue"}</Button>
+                    </div>
+                </div>
+
             </div>
         )
     }
@@ -178,6 +296,8 @@ const Page = () => {
                                     />
                                 </div>
                             </div>
+
+                            <div id="clerk-captcha"></div>
 
                             <div>
                                 <button type="submit" className={commonStyles.button} disabled={loading}>
