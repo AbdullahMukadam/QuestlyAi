@@ -20,8 +20,8 @@ const Navbar = () => {
             show: true
         },
         {
-            item: "About",
-            link: "/about",
+            item: "Signup",
+            link: "/sign-up",
             show: !authStatus
         },
         {
