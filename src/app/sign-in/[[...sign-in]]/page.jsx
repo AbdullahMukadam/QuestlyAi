@@ -1,19 +1,17 @@
 "use client"
 import {
     FaCheckCircle,
-    FaUser,
     FaEnvelope,
     FaLock,
     FaGoogle,
-    FaGithub
+    FaGithub,
 } from "react-icons/fa";
-import { MdEdit } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { useSignUp } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
-import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { useSignIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { login } from "@/app/store/AuthSlice";
 
@@ -30,164 +28,65 @@ const commonStyles = {
 };
 
 const Page = () => {
-    const [userData, setuserData] = useState({
-        username: "",
+
+    const { toast } = useToast()
+    const [loading, setloading] = useState(false)
+    const { setActive, isLoaded, signIn } = useSignIn()
+    const [UserData, setUserData] = useState({
         emailAddress: "",
         password: ""
     })
-    const [loading, setloading] = useState(false)
-    const { isLoaded, setActive, signUp } = useSignUp()
-    const [verifying, setverifying] = useState(false)
-    const [otpvalues, setotpvalues] = useState(["", "", "", "", "", ""])
-    const refs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()]
     const router = useRouter()
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        if (verifying) refs[0].current.focus()
-
-    }, [verifying])
-
     const handleChange = (e) => {
-        setuserData((prev) => ({
+        setUserData((prev) => ({
             ...prev,
             [e.target.id]: e.target.value
         }))
     }
 
-    const handleOTPchange = (e, index) => {
-        const val = e.target.value
-        if (isNaN(val)) return
-
-        if (index < otpvalues.length - 1) {
-
-
-            refs[index + 1].current.focus()
-        }
-
-        const copyOtpvalues = [...otpvalues]
-        copyOtpvalues[index] = val
-        setotpvalues(copyOtpvalues)
-
-    }
-
-    const handleOTPback = (e, index) => {
-
-        if (e.keyCode === 8) {
-            const copyOtpvalues = [...otpvalues]
-            copyOtpvalues[index] = ""
-            setotpvalues(copyOtpvalues)
-
-            if (index > 0) {
-                refs[index - 1].current.focus()
-            }
-
-
-        }
-
-
-    }
-
-    const handlePaste = (e) => {
-        const pastedData = e.clipboardData.getData("text")
-        console.log(pastedData)
-
-        if (pastedData.length > otpvalues.length || !Number(pastedData)) return;
-
-        const splitedData = pastedData.split("")
-        setotpvalues(splitedData)
-        refs[otpvalues.length - 1].current.focus()
-    }
-
     const handleSubmit = async (e) => {
         e.preventDefault()
-        if (!isLoaded) return
-        try {
-            setloading(true)
-            await signUp.create({
-                username: userData.username,
-                emailAddress: userData.emailAddress,
-                password: userData.password
-            })
 
-            await signUp.prepareEmailAddressVerification({
-                strategy: "email_code"
-            })
-
-            setverifying(true)
-
-        } catch (error) {
-            console.log("Error in Sign Up", error)
-        } finally {
-            setloading(false)
-        }
-    }
-
-    const handleOTPVerification = async () => {
-        if (!isLoaded) return
-
-
+        if (!isLoaded) return;
         try {
             setloading(true)
 
-            const simplifiedCode = otpvalues.join("")
-
-
-            const signUpAttempt = await signUp.attemptEmailAddressVerification({
-                code: simplifiedCode
+            const signInAttempt = await signIn.create({
+                identifier: UserData.emailAddress,
+                password: UserData.password,
             })
 
             const userData = {
-                userId: signUpAttempt?.createdUserId,
-                emailAddress: signUpAttempt?.emailAddress,
-                username: signUpAttempt?.username
+                username : "Abdullah",
+                userId: "123456",
+                emailAddress: "abd@gmail.com",
             }
 
-            if (signUpAttempt.status === 'complete') {
-                await setActive({ session: signUpAttempt.createdSessionId })
-                console.log(signUpAttempt)
-
+            if (signInAttempt.status === 'complete') {
+                await setActive({ session: signInAttempt.createdSessionId })
+                toast({
+                    title: "Welcome",
+                    description: "Sign In Successful",
+                })
+                console.log(signInAttempt)
                 dispatch(login(userData))
                 router.push('/')
             } else {
-                console.error(JSON.stringify(signUpAttempt, null, 2))
+                console.error(JSON.stringify(signInAttempt, null, 2))
             }
+
+
         } catch (error) {
-            console.log("Error in verifying code", error)
+            toast({
+                title: "Error in SignIn!",
+                description: "An Error Occured, Please Try Again",
+                variant: "destructive"
+            })
         } finally {
             setloading(false)
         }
-    }
-
-    if (verifying) {
-        return (
-            <div className="w-full p-4 flex items-center justify-center">
-                <div className="w-[350px] md:w-[500px] p-4 rounded-2xl border-[1px] text-center bg-white shadow-md">
-                    <h1 className="font-bold text-center">Email Verification</h1>
-                    <p className="text-sm text-gray-600">Enter you Verification Code send to your Email</p>
-                    <span className="text-sm text-gray-500">{userData.emailAddress || "dummy@gmail.com"}<button className="font-bold ml-2 text-center"><MdEdit className="font-bold text-black" /></button></span>
-                    <div className="w-full mt-7 ">
-                        {otpvalues.map((otp, index) => ((
-                            <input
-                                ref={refs[index]}
-                                key={index}
-                                className="w-10 border-2 p-2 ml-2 text-center"
-                                maxLength={1}
-                                value={otp}
-                                onPaste={handlePaste}
-                                onChange={(e) => handleOTPchange(e, index)}
-                                onKeyDown={(e) => handleOTPback(e, index)}
-                            />
-                        )))}
-                        <p className=" mt-2 text-sm text-gray-800 ">Didn't receive code? <button className="">Resend</button></p>
-                    </div>
-                    <div className="w-full mt-5">
-                        <Button onClick={handleOTPVerification} disabled={loading}>{loading ? "Verifying" : "Continue"}</Button>
-                    </div>
-                </div>
-
-            </div>
-        )
     }
     return (
         <section className="bg-white">
@@ -195,11 +94,12 @@ const Page = () => {
                 <div className="relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 bg-gray-50 sm:px-6 lg:px-8">
                     <div className="absolute inset-0">
                         <Image
-                            className="object-cover"
+                            className="object-cover object-top w-full h-full"
                             src="/womenlaptop.jpg"
-                            alt="Girl working on laptop"
+                            alt="Women Working"
                             layout="fill"
                             objectFit="cover"
+                            objectPosition="top"
                         />
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
@@ -207,7 +107,7 @@ const Page = () => {
                         <div className="w-full max-w-xl xl:w-full xl:mx-auto xl:pr-24 xl:max-w-xl">
                             <h3 className="text-4xl font-bold text-white">
                                 Join 35k+ web professionals & <br className="hidden xl:block" />
-                                practise youe sessions
+                                practise your sessions
                             </h3>
                             <ul className="grid grid-cols-1 mt-10 sm:grid-cols-2 gap-x-8 gap-y-4">
                                 {[
@@ -233,34 +133,16 @@ const Page = () => {
                 <div className="flex items-center justify-center px-4 py-10 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
                     <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto">
                         <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl">
-                            Sign up to QuestlyAi
+                            Sign in to QuestlyAi
                         </h2>
                         <p className="mt-2 text-base text-gray-600">
-                            Already have an account?{" "}
-                            <Link href="/sign-in" className={commonStyles.link}>
-                                Login
+                            Don’t have an account?{" "}
+                            <Link href="/sign-up" className={commonStyles.link}>
+                                Create a free account
                             </Link>
                         </p>
 
                         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-                            <div>
-                                <label className="text-base font-medium text-gray-900">
-                                    Username
-                                </label>
-                                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                                    <div className={commonStyles.inputIcon}>
-                                        <FaUser className="w-5 h-5" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter your Username"
-                                        className={commonStyles.input}
-                                        id="username"
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-
                             <div>
                                 <label className="text-base font-medium text-gray-900">
                                     Email address
@@ -271,37 +153,42 @@ const Page = () => {
                                     </div>
                                     <input
                                         type="email"
+                                        id="emailAddress"
                                         placeholder="Enter email to get started"
                                         className={commonStyles.input}
-                                        id="emailAddress"
+                                        value={UserData.emailAddress}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="text-base font-medium text-gray-900">
-                                    Password
-                                </label>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-base font-medium text-gray-900">
+                                        Password
+                                    </label>
+                                    <Link href="#" className={commonStyles.link}>
+                                        Forgot password?
+                                    </Link>
+                                </div>
                                 <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
                                     <div className={commonStyles.inputIcon}>
                                         <FaLock className="w-5 h-5" />
                                     </div>
                                     <input
                                         type="password"
+                                        id="password"
                                         placeholder="Enter your password"
                                         className={commonStyles.input}
-                                        id="password"
+                                        value={UserData.password}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
 
-                            <div id="clerk-captcha"></div>
-
                             <div>
-                                <button type="submit" className={commonStyles.button} disabled={loading}>
-                                    {loading ? 'Submitting..' : "SignUp"}
+                                <button type="submit" className={commonStyles.button}>
+                                    Log in
                                 </button>
                             </div>
                         </form>
@@ -311,27 +198,16 @@ const Page = () => {
                                 <div className="absolute inset-y-0 left-0 p-4">
                                     <FaGoogle className="w-6 h-6 text-rose-500" />
                                 </div>
-                                Sign up with Google
+                                Sign in with Google
                             </button>
 
                             <button type="button" className={commonStyles.socialButton}>
                                 <div className="absolute inset-y-0 left-0 p-4">
                                     <FaGithub className="w-6 h-6 " />
                                 </div>
-                                Sign up with Github
+                                Sign in with Github
                             </button>
                         </div>
-
-                        <p className="mt-5 text-sm text-gray-600">
-                            This site is protected by reCAPTCHA and the Google{" "}
-                            <Link href="#" className={commonStyles.link}>
-                                Privacy Policy
-                            </Link>{" "}
-                            &{" "}
-                            <Link href="#" className={commonStyles.link}>
-                                Terms of Service
-                            </Link>
-                        </p>
                     </div>
                 </div>
             </div>

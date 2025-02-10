@@ -4,6 +4,7 @@ import Navbar from '../components/common/Navbar'
 import { Provider } from 'react-redux'
 import { store } from '../store/store'
 import { ClerkProvider } from '@clerk/nextjs'
+import { Toaster } from '@/components/ui/toaster'
 
 function CommonLayout({ children }) {
     return (
@@ -12,6 +13,7 @@ function CommonLayout({ children }) {
                 <Provider store={store}>
                     <Navbar />
                     <main>{children}</main>
+                    <Toaster />
                 </Provider>
             </ClerkProvider>
 

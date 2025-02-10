@@ -4,14 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { Squash as Hamburger } from 'hamburger-react'
-import { useSelector } from "react-redux";
-import { usePathname } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { usePathname, useRouter } from "next/navigation";
+import { logout } from "@/app/store/AuthSlice";
+import { useClerk } from "@clerk/nextjs";
 
 const Navbar = () => {
     const [menu, setMenu] = useState(false);
     const authStatus = useSelector((state) => state.auth.authStatus)
+    const dispatch = useDispatch()
+    const router = useRouter()
     const pathname = usePathname()
-   
+    const { signOut } = useClerk()
+
+
 
     const navItems = [
         {
@@ -20,8 +26,8 @@ const Navbar = () => {
             show: true
         },
         {
-            item: "Signup",
-            link: "/sign-up",
+            item: "SignIn",
+            link: "/sign-in",
             show: !authStatus
         },
         {
@@ -30,6 +36,12 @@ const Navbar = () => {
             show: !authStatus
         },
     ]
+
+    const handleLogout = () => {
+        signOut()
+        dispatch(logout())
+        router.push("/")
+    }
     return (
         <header className="bg-white/80 backdrop-blur-lg border-b shadow-sm sticky top-0 w-full z-50 md:px-4">
             <div className="w-full flex items-center justify-between py-2 px-4">
@@ -66,9 +78,11 @@ const Navbar = () => {
                 </div>
 
                 <nav className="hidden md:flex items-center gap-8 text-black">
-                    <Button className="px-8 py-3 rounded-full bg-[#18B088]  text-white hover:bg-green-800 hover: font-medium transition duration-200">
+                    {authStatus ? <Button onClick={handleLogout} className="px-8 py-3 rounded-full bg-red-500  text-white hover:bg-red-700 hover: font-medium transition duration-200">
+                        Logout
+                    </Button> : <Button className="px-8 py-3 rounded-full bg-[#18B088]  text-white hover:bg-green-800 hover: font-medium transition duration-200">
                         Get Started
-                    </Button>
+                    </Button>}
 
                 </nav>
 
