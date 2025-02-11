@@ -8,15 +8,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { usePathname, useRouter } from "next/navigation";
 import { logout } from "@/app/store/AuthSlice";
 import { useClerk } from "@clerk/nextjs";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
     const [menu, setMenu] = useState(false);
     const authStatus = useSelector((state) => state.auth.authStatus)
+    const sessionId = useSelector((state) => state.auth.sessionId)
     const dispatch = useDispatch()
     const router = useRouter()
     const pathname = usePathname()
     const { signOut } = useClerk()
-
+   const {toast} = useToast()
 
 
     const navItems = [
@@ -37,10 +39,21 @@ const Navbar = () => {
         },
     ]
 
-    const handleLogout = () => {
-        signOut()
-        dispatch(logout())
-        router.push("/")
+    const handleLogout = async () => {
+        try {
+            await signOut({
+                sessionId: sessionId
+            })
+            dispatch(logout())
+            router.push("/")
+        } catch (error) {
+            console.error("Logout error:", error)
+            toast({
+                title: "Logout Error",
+                description: "Failed to logout. Please try again.",
+                variant: "destructive"
+            })
+        }
     }
     return (
         <header className="bg-white/80 backdrop-blur-lg border-b shadow-sm sticky top-0 w-full z-50 md:px-4">

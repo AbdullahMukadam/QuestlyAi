@@ -58,30 +58,38 @@ const Page = () => {
                 password: UserData.password,
             })
 
-            const userData = {
-                username : "Abdullah",
-                userId: "123456",
-                emailAddress: "abd@gmail.com",
-            }
-
             if (signInAttempt.status === 'complete') {
                 await setActive({ session: signInAttempt.createdSessionId })
+
+                const userData = {
+                    userId: signInAttempt.userId || "",
+                    emailAddress: UserData.emailAddress,
+                    username: signInAttempt.username || "",
+                    sessionId: signInAttempt.createdSessionId
+                }
+
                 toast({
-                    title: "Welcome",
-                    description: "Sign In Successful",
+                    title: "Welcome back!",
+                    description: "Sign in successful",
                 })
-                console.log(signInAttempt)
+
                 dispatch(login(userData))
+                console.log(userData)
                 router.push('/')
             } else {
                 console.error(JSON.stringify(signInAttempt, null, 2))
+                toast({
+                    title: "Error",
+                    description: "Sign in failed. Please try again.",
+                    variant: "destructive"
+                })
             }
 
-
         } catch (error) {
+            console.error("Sign in error:", error)
             toast({
-                title: "Error in SignIn!",
-                description: "An Error Occured, Please Try Again",
+                title: "Error in Sign In!",
+                description: error.message || "An error occurred, please try again",
                 variant: "destructive"
             })
         } finally {
@@ -136,7 +144,7 @@ const Page = () => {
                             Sign in to QuestlyAi
                         </h2>
                         <p className="mt-2 text-base text-gray-600">
-                            Don’t have an account?{" "}
+                            Don't have an account?{" "}
                             <Link href="/sign-up" className={commonStyles.link}>
                                 Create a free account
                             </Link>
@@ -158,6 +166,7 @@ const Page = () => {
                                         className={commonStyles.input}
                                         value={UserData.emailAddress}
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -182,13 +191,14 @@ const Page = () => {
                                         className={commonStyles.input}
                                         value={UserData.password}
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <button type="submit" className={commonStyles.button}>
-                                    Log in
+                                <button type="submit" className={commonStyles.button} disabled={loading}>
+                                    {loading ? "Logginng in.." : "Log In"}
                                 </button>
                             </div>
                         </form>

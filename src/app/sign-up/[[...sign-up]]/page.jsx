@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
 import { login } from "@/app/store/AuthSlice";
+import { useToast } from "@/hooks/use-toast";
 
 const commonStyles = {
     inputIcon:
@@ -42,6 +43,9 @@ const Page = () => {
     const refs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()]
     const router = useRouter()
     const dispatch = useDispatch()
+    const { toast } = useToast()
+    
+
 
     useEffect(() => {
         if (verifying) refs[0].current.focus()
@@ -126,34 +130,41 @@ const Page = () => {
     const handleOTPVerification = async () => {
         if (!isLoaded) return
 
-
         try {
             setloading(true)
-
             const simplifiedCode = otpvalues.join("")
-
 
             const signUpAttempt = await signUp.attemptEmailAddressVerification({
                 code: simplifiedCode
             })
 
-            const userData = {
-                userId: signUpAttempt?.createdUserId,
-                emailAddress: signUpAttempt?.emailAddress,
-                username: signUpAttempt?.username
-            }
-
             if (signUpAttempt.status === 'complete') {
                 await setActive({ session: signUpAttempt.createdSessionId })
-                console.log(signUpAttempt)
+
+                const userData = {
+                    userId: signUpAttempt.createdUserId,
+                    emailAddress: signUpAttempt.emailAddress,
+                    username: signUpAttempt.username,
+                    sessionId: signUpAttempt.createdSessionId
+                }
 
                 dispatch(login(userData))
                 router.push('/')
             } else {
                 console.error(JSON.stringify(signUpAttempt, null, 2))
+                toast({
+                    title: "Verification Failed",
+                    description: "Please try again with the correct code",
+                    variant: "destructive"
+                })
             }
         } catch (error) {
-            console.log("Error in verifying code", error)
+            console.error("Error in verifying code:", error)
+            toast({
+                title: "Verification Error",
+                description: error.message || "Failed to verify code. Please try again.",
+                variant: "destructive"
+            })
         } finally {
             setloading(false)
         }
@@ -257,6 +268,7 @@ const Page = () => {
                                         className={commonStyles.input}
                                         id="username"
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -275,6 +287,7 @@ const Page = () => {
                                         className={commonStyles.input}
                                         id="emailAddress"
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -293,6 +306,7 @@ const Page = () => {
                                         className={commonStyles.input}
                                         id="password"
                                         onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
