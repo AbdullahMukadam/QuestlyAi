@@ -5,19 +5,13 @@ import AfterLoginHomepage from '../AfterLoginHomepage/AfterLoginHomepage'
 import LandingPage from '../landing-page/LandingPage'
 import { login } from '@/app/store/AuthSlice'
 
-function HomePageContainer({ userId, username }) {
+function HomePageContainer({ userId }) {
     const authStatus = useSelector((state) => state.auth.authStatus)
-    const UserData = useSelector((state) => state.auth.userData)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        const userData = {
-            ...UserData,
-            userId,
-            username
-        }
         if (userId || authStatus) {
-            dispatch(login(userData))
+            dispatch(login(userId))
             //console.log(userData)
         }
     }, [userId, authStatus])

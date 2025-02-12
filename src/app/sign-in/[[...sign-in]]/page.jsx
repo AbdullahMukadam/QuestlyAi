@@ -6,13 +6,8 @@ import {
     FaGoogle,
     FaGithub,
 } from "react-icons/fa";
-import Link from "next/link";
 import Image from "next/image";
-import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { login } from "@/app/store/AuthSlice";
+import { SignIn } from "@clerk/nextjs";
 
 const commonStyles = {
     inputIcon:
@@ -27,75 +22,7 @@ const commonStyles = {
 };
 
 const Page = () => {
-    const { toast } = useToast()
-    const [loading, setloading] = useState(false)
-    const [UserData, setUserData] = useState({
-        emailAddress: "",
-        password: ""
-    })
-    const router = useRouter()
-    const dispatch = useDispatch()
 
-    const handleChange = (e) => {
-        setUserData((prev) => ({
-            ...prev,
-            [e.target.id]: e.target.value
-        }))
-    }
-
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        try {
-            setloading(true)
-            // Implement your own authentication logic here
-            // Example:
-            // const response = await signInWithEmailAndPassword(UserData.emailAddress, UserData.password)
-            
-            toast({
-                title: "Welcome back!",
-                description: "Sign in successful",
-            })
-
-            // Update with your user data structure
-            const userData = {
-                userId: "user_id",
-                emailAddress: UserData.emailAddress,
-                username: "username",
-                sessionId: "session_id"
-            }
-
-            dispatch(login(userData))
-            router.push('/')
-        } catch (error) {
-            console.error("Sign in error:", error)
-            toast({
-                title: "Error in Sign In!",
-                description: error.message || "An error occurred, please try again",
-                variant: "destructive"
-            })
-        } finally {
-            setloading(false)
-        }
-    }
-
-    const handleOAuthSignIn = async (provider) => {
-        try {
-            setloading(true)
-            // Implement your OAuth sign-in logic here
-            // Example:
-            // await signInWithProvider(provider)
-            
-        } catch (err) {
-            console.error(`${provider} sign in error:`, err)
-            toast({
-                title: `${provider} Sign In Error`,
-                description: err.message || `Failed to sign in with ${provider}`,
-                variant: "destructive"
-            })
-        } finally {
-            setloading(false)
-        }
-    }
 
     return (
         <section className="bg-white">
@@ -140,96 +67,7 @@ const Page = () => {
                 </div>
 
                 <div className="flex items-center justify-center px-4 py-10 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
-                    <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto">
-                        <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl">
-                            Sign in to QuestlyAi
-                        </h2>
-                        <p className="mt-2 text-base text-gray-600">
-                            Don't have an account?{" "}
-                            <Link href="/sign-up" className={commonStyles.link}>
-                                Create a free account
-                            </Link>
-                        </p>
-
-                        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-                            <div>
-                                <label className="text-base font-medium text-gray-900">
-                                    Email address
-                                </label>
-                                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                                    <div className={commonStyles.inputIcon}>
-                                        <FaEnvelope className="w-5 h-5" />
-                                    </div>
-                                    <input
-                                        type="email"
-                                        id="emailAddress"
-                                        placeholder="Enter email to get started"
-                                        className={commonStyles.input}
-                                        value={UserData.emailAddress}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="flex items-center justify-between">
-                                    <label className="text-base font-medium text-gray-900">
-                                        Password
-                                    </label>
-                                    <Link href="#" className={commonStyles.link}>
-                                        Forgot password?
-                                    </Link>
-                                </div>
-                                <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                                    <div className={commonStyles.inputIcon}>
-                                        <FaLock className="w-5 h-5" />
-                                    </div>
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        placeholder="Enter your password"
-                                        className={commonStyles.input}
-                                        value={UserData.password}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <button type="submit" className={commonStyles.button} disabled={loading}>
-                                    {loading ? "Logginng in.." : "Log In"}
-                                </button>
-                            </div>
-                        </form>
-
-                        <div className="mt-3 space-y-3">
-                            <button 
-                                type="button" 
-                                className={commonStyles.socialButton}
-                                onClick={() => handleOAuthSignIn("oauth_google")}
-                                disabled={loading}
-                            >
-                                <div className="absolute inset-y-0 left-0 p-4">
-                                    <FaGoogle className="w-6 h-6 text-rose-500" />
-                                </div>
-                                {loading ? "Signing in..." : "Sign in with Google"}
-                            </button>
-
-                            <button 
-                                type="button" 
-                                className={commonStyles.socialButton}
-                                onClick={() => handleOAuthSignIn("oauth_github")}
-                                disabled={loading}
-                            >
-                                <div className="absolute inset-y-0 left-0 p-4">
-                                    <FaGithub className="w-6 h-6" />
-                                </div>
-                                {loading ? "Signing in..." : "Sign in with Github"}
-                            </button>
-                        </div>
-                    </div>
+                    <SignIn />
                 </div>
             </div>
         </section>
