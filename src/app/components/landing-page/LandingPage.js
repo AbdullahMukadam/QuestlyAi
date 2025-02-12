@@ -10,6 +10,7 @@ import { BookmarkCheck, CircleUserRound, Database, LockKeyhole } from 'lucide-re
 import { LucideUser, LucideLink2, LucideBox, LucideTreeDeciduous } from 'lucide-react';
 import { Marquee } from '@/components/magicui/marquee';
 import Footer from '../common/Footer';
+import { RetroGrid } from '@/components/magicui/retro-grid';
 
 const ReviewCard = ({ img, name, username, body }) => (
   <figure className="relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
@@ -106,17 +107,18 @@ function LandingPage() {
 
       {/* 3D Model Viewer */}
       <div className="model-viewer-container hidden md:block">
-        <model-viewer
+        {/* <model-viewer
           src="/models/Baymax.glb"
           alt="A 3D model"
           camera-controls
           auto-rotate
           className="w-full h-full"
-        ></model-viewer>
+        ></model-viewer> */}
+        <RetroGrid opacity={0.8}/>
       </div>
 
       {/* Hero Section */}
-      <section className="w-full md:absolute md:top-[0%] lg:top-[5%] pt-6 md:pt-14 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-20 px-4">
+      <section className="w-full md:absolute md:top-[0%] lg:top-[4%] pt-6 md:pt-14 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-20 px-4">
         <div className="w-full text-center md:text-left">
           <h1 className="text-2xl font-bold md:text-5xl lg:text-6xl">
             All-in-One AI <span className="block md:inline">Interviewer Platform</span>

@@ -7,11 +7,9 @@ import {
     FaGoogle,
     FaGithub
 } from "react-icons/fa";
-import { MdEdit } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { useSignUp } from '@clerk/nextjs'
+import { useState } from "react";
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
@@ -37,20 +35,10 @@ const Page = () => {
         password: ""
     })
     const [loading, setloading] = useState(false)
-    const { isLoaded, setActive, signUp } = useSignUp()
-    const [verifying, setverifying] = useState(false)
-    const [otpvalues, setotpvalues] = useState(["", "", "", "", "", ""])
-    const refs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()]
     const router = useRouter()
     const dispatch = useDispatch()
     const { toast } = useToast()
-    
-
-
-    useEffect(() => {
-        if (verifying) refs[0].current.focus()
-
-    }, [verifying])
+    const [error, setError] = useState("")
 
     const handleChange = (e) => {
         setuserData((prev) => ({
@@ -59,110 +47,29 @@ const Page = () => {
         }))
     }
 
-    const handleOTPchange = (e, index) => {
-        const val = e.target.value
-        if (isNaN(val)) return
-
-        if (index < otpvalues.length - 1) {
-
-
-            refs[index + 1].current.focus()
-        }
-
-        const copyOtpvalues = [...otpvalues]
-        copyOtpvalues[index] = val
-        setotpvalues(copyOtpvalues)
-
-    }
-
-    const handleOTPback = (e, index) => {
-
-        if (e.keyCode === 8) {
-            const copyOtpvalues = [...otpvalues]
-            copyOtpvalues[index] = ""
-            setotpvalues(copyOtpvalues)
-
-            if (index > 0) {
-                refs[index - 1].current.focus()
-            }
-
-
-        }
-
-
-    }
-
-    const handlePaste = (e) => {
-        const pastedData = e.clipboardData.getData("text")
-        console.log(pastedData)
-
-        if (pastedData.length > otpvalues.length || !Number(pastedData)) return;
-
-        const splitedData = pastedData.split("")
-        setotpvalues(splitedData)
-        refs[otpvalues.length - 1].current.focus()
-    }
-
     const handleSubmit = async (e) => {
         e.preventDefault()
-        if (!isLoaded) return
         try {
             setloading(true)
-            await signUp.create({
-                username: userData.username,
+            // Implement your sign-up logic here
+            // Example:
+            // await createUserWithEmailAndPassword(userData.emailAddress, userData.password)
+            
+            // Update with your user data structure
+            const newUserData = {
+                userId: "user_id",
                 emailAddress: userData.emailAddress,
-                password: userData.password
-            })
-
-            await signUp.prepareEmailAddressVerification({
-                strategy: "email_code"
-            })
-
-            setverifying(true)
-
-        } catch (error) {
-            console.log("Error in Sign Up", error)
-        } finally {
-            setloading(false)
-        }
-    }
-
-    const handleOTPVerification = async () => {
-        if (!isLoaded) return
-
-        try {
-            setloading(true)
-            const simplifiedCode = otpvalues.join("")
-
-            const signUpAttempt = await signUp.attemptEmailAddressVerification({
-                code: simplifiedCode
-            })
-
-            if (signUpAttempt.status === 'complete') {
-                await setActive({ session: signUpAttempt.createdSessionId })
-
-                const userData = {
-                    userId: signUpAttempt.createdUserId,
-                    emailAddress: signUpAttempt.emailAddress,
-                    username: signUpAttempt.username,
-                    sessionId: signUpAttempt.createdSessionId
-                }
-
-                dispatch(login(userData))
-                router.push('/')
-            } else {
-                console.error(JSON.stringify(signUpAttempt, null, 2))
-                toast({
-                    title: "Verification Failed",
-                    description: "Please try again with the correct code",
-                    variant: "destructive"
-                })
+                username: userData.username,
+                sessionId: "session_id"
             }
+
+            dispatch(login(newUserData))
+            router.push('/')
         } catch (error) {
-            console.error("Error in verifying code:", error)
+            console.error("Error in Sign Up", error)
             toast({
-                title: "Verification Error",
-                description: error.message || "Failed to verify code. Please try again.",
+                title: "Sign Up Error",
+                description: error.message || "Failed to create account",
                 variant: "destructive"
             })
         } finally {
@@ -170,36 +77,26 @@ const Page = () => {
         }
     }
 
-    if (verifying) {
-        return (
-            <div className="w-full p-4 flex items-center justify-center">
-                <div className="w-[350px] md:w-[500px] p-4 rounded-2xl border-[1px] text-center bg-white shadow-md">
-                    <h1 className="font-bold text-center">Email Verification</h1>
-                    <p className="text-sm text-gray-600">Enter you Verification Code send to your Email</p>
-                    <span className="text-sm text-gray-500">{userData.emailAddress || "dummy@gmail.com"}<button className="font-bold ml-2 text-center"><MdEdit className="font-bold text-black" /></button></span>
-                    <div className="w-full mt-7 ">
-                        {otpvalues.map((otp, index) => ((
-                            <input
-                                ref={refs[index]}
-                                key={index}
-                                className="w-10 border-2 p-2 ml-2 text-center"
-                                maxLength={1}
-                                value={otp}
-                                onPaste={handlePaste}
-                                onChange={(e) => handleOTPchange(e, index)}
-                                onKeyDown={(e) => handleOTPback(e, index)}
-                            />
-                        )))}
-                        <p className=" mt-2 text-sm text-gray-800 ">Didn't receive code? <button className="">Resend</button></p>
-                    </div>
-                    <div className="w-full mt-5">
-                        <Button onClick={handleOTPVerification} disabled={loading}>{loading ? "Verifying" : "Continue"}</Button>
-                    </div>
-                </div>
-
-            </div>
-        )
+    const handleOAuthSignUp = async (provider) => {
+        try {
+            setloading(true)
+            // Implement your OAuth sign-up logic here
+            // Example:
+            // await signUpWithProvider(provider)
+            
+        } catch (err) {
+            console.error(`${provider} sign up error:`, err)
+            setError(`Failed to sign up with ${provider}`)
+            toast({
+                title: `${provider} Error`,
+                description: err.message || `Failed to sign up with ${provider}`,
+                variant: "destructive"
+            })
+        } finally {
+            setloading(false)
+        }
     }
+
     return (
         <section className="bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2">
@@ -255,9 +152,7 @@ const Page = () => {
 
                         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
                             <div>
-                                <label className="text-base font-medium text-gray-900">
-                                    Username
-                                </label>
+                                <label className="text-base font-medium text-gray-900">Username</label>
                                 <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
                                     <div className={commonStyles.inputIcon}>
                                         <FaUser className="w-5 h-5" />
@@ -274,9 +169,7 @@ const Page = () => {
                             </div>
 
                             <div>
-                                <label className="text-base font-medium text-gray-900">
-                                    Email address
-                                </label>
+                                <label className="text-base font-medium text-gray-900">Email address</label>
                                 <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
                                     <div className={commonStyles.inputIcon}>
                                         <FaEnvelope className="w-5 h-5" />
@@ -293,9 +186,7 @@ const Page = () => {
                             </div>
 
                             <div>
-                                <label className="text-base font-medium text-gray-900">
-                                    Password
-                                </label>
+                                <label className="text-base font-medium text-gray-900">Password</label>
                                 <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
                                     <div className={commonStyles.inputIcon}>
                                         <FaLock className="w-5 h-5" />
@@ -311,28 +202,37 @@ const Page = () => {
                                 </div>
                             </div>
 
-                            <div id="clerk-captcha"></div>
-
                             <div>
                                 <button type="submit" className={commonStyles.button} disabled={loading}>
-                                    {loading ? 'Submitting..' : "SignUp"}
+                                    {loading ? "Creating Account..." : "Create Account"}
                                 </button>
                             </div>
                         </form>
 
                         <div className="mt-3 space-y-3">
-                            <button type="button" className={commonStyles.socialButton}>
+                            {error && <p className="text-red-500">{error}</p>}
+                            <button 
+                                type="button" 
+                                className={commonStyles.socialButton} 
+                                onClick={() => handleOAuthSignUp("google")}
+                                disabled={loading}
+                            >
                                 <div className="absolute inset-y-0 left-0 p-4">
                                     <FaGoogle className="w-6 h-6 text-rose-500" />
                                 </div>
-                                Sign up with Google
+                                {loading ? "Signing up..." : "Sign up with Google"}
                             </button>
 
-                            <button type="button" className={commonStyles.socialButton}>
+                            <button 
+                                type="button" 
+                                className={commonStyles.socialButton}
+                                onClick={() => handleOAuthSignUp("github")}
+                                disabled={loading}
+                            >
                                 <div className="absolute inset-y-0 left-0 p-4">
-                                    <FaGithub className="w-6 h-6 " />
+                                    <FaGithub className="w-6 h-6" />
                                 </div>
-                                Sign up with Github
+                                {loading ? "Signing up..." : "Sign up with Github"}
                             </button>
                         </div>
 

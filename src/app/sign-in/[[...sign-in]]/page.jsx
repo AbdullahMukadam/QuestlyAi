@@ -10,7 +10,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { login } from "@/app/store/AuthSlice";
@@ -28,10 +27,8 @@ const commonStyles = {
 };
 
 const Page = () => {
-
     const { toast } = useToast()
     const [loading, setloading] = useState(false)
-    const { setActive, isLoaded, signIn } = useSignIn()
     const [UserData, setUserData] = useState({
         emailAddress: "",
         password: ""
@@ -48,43 +45,27 @@ const Page = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
-        if (!isLoaded) return;
         try {
             setloading(true)
-
-            const signInAttempt = await signIn.create({
-                identifier: UserData.emailAddress,
-                password: UserData.password,
+            // Implement your own authentication logic here
+            // Example:
+            // const response = await signInWithEmailAndPassword(UserData.emailAddress, UserData.password)
+            
+            toast({
+                title: "Welcome back!",
+                description: "Sign in successful",
             })
 
-            if (signInAttempt.status === 'complete') {
-                await setActive({ session: signInAttempt.createdSessionId })
-
-                const userData = {
-                    userId: signInAttempt.userId || "",
-                    emailAddress: UserData.emailAddress,
-                    username: signInAttempt.username || "",
-                    sessionId: signInAttempt.createdSessionId
-                }
-
-                toast({
-                    title: "Welcome back!",
-                    description: "Sign in successful",
-                })
-
-                dispatch(login(userData))
-                console.log(userData)
-                router.push('/')
-            } else {
-                console.error(JSON.stringify(signInAttempt, null, 2))
-                toast({
-                    title: "Error",
-                    description: "Sign in failed. Please try again.",
-                    variant: "destructive"
-                })
+            // Update with your user data structure
+            const userData = {
+                userId: "user_id",
+                emailAddress: UserData.emailAddress,
+                username: "username",
+                sessionId: "session_id"
             }
 
+            dispatch(login(userData))
+            router.push('/')
         } catch (error) {
             console.error("Sign in error:", error)
             toast({
@@ -96,6 +77,26 @@ const Page = () => {
             setloading(false)
         }
     }
+
+    const handleOAuthSignIn = async (provider) => {
+        try {
+            setloading(true)
+            // Implement your OAuth sign-in logic here
+            // Example:
+            // await signInWithProvider(provider)
+            
+        } catch (err) {
+            console.error(`${provider} sign in error:`, err)
+            toast({
+                title: `${provider} Sign In Error`,
+                description: err.message || `Failed to sign in with ${provider}`,
+                variant: "destructive"
+            })
+        } finally {
+            setloading(false)
+        }
+    }
+
     return (
         <section className="bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2">
@@ -204,18 +205,28 @@ const Page = () => {
                         </form>
 
                         <div className="mt-3 space-y-3">
-                            <button type="button" className={commonStyles.socialButton}>
+                            <button 
+                                type="button" 
+                                className={commonStyles.socialButton}
+                                onClick={() => handleOAuthSignIn("oauth_google")}
+                                disabled={loading}
+                            >
                                 <div className="absolute inset-y-0 left-0 p-4">
                                     <FaGoogle className="w-6 h-6 text-rose-500" />
                                 </div>
-                                Sign in with Google
+                                {loading ? "Signing in..." : "Sign in with Google"}
                             </button>
 
-                            <button type="button" className={commonStyles.socialButton}>
+                            <button 
+                                type="button" 
+                                className={commonStyles.socialButton}
+                                onClick={() => handleOAuthSignIn("oauth_github")}
+                                disabled={loading}
+                            >
                                 <div className="absolute inset-y-0 left-0 p-4">
-                                    <FaGithub className="w-6 h-6 " />
+                                    <FaGithub className="w-6 h-6" />
                                 </div>
-                                Sign in with Github
+                                {loading ? "Signing in..." : "Sign in with Github"}
                             </button>
                         </div>
                     </div>

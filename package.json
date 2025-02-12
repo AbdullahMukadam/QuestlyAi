@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.22.12",
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/nextjs": "^6.11.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.6",

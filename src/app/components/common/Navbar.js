@@ -7,19 +7,15 @@ import { Squash as Hamburger } from 'hamburger-react'
 import { useDispatch, useSelector } from "react-redux";
 import { usePathname, useRouter } from "next/navigation";
 import { logout } from "@/app/store/AuthSlice";
-import { useClerk } from "@clerk/nextjs";
 import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
     const [menu, setMenu] = useState(false);
     const authStatus = useSelector((state) => state.auth.authStatus)
-    const sessionId = useSelector((state) => state.auth.sessionId)
     const dispatch = useDispatch()
     const router = useRouter()
     const pathname = usePathname()
-    const { signOut } = useClerk()
-   const {toast} = useToast()
-
+    const { toast } = useToast()
 
     const navItems = [
         {
@@ -41,9 +37,10 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         try {
-            await signOut({
-                sessionId: sessionId
-            })
+            // Implement your logout logic here
+            // Example:
+            // await signOut()
+            
             dispatch(logout())
             router.push("/")
         } catch (error) {
@@ -55,6 +52,7 @@ const Navbar = () => {
             })
         }
     }
+
     return (
         <header className="bg-white/80 backdrop-blur-lg border-b shadow-sm sticky top-0 w-full z-50 md:px-4">
             <div className="w-full flex items-center justify-between py-2 px-4">
