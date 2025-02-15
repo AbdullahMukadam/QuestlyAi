@@ -44,9 +44,9 @@ function LandingPage() {
     return () => clearTimeout(timerId);
   }, []);
 
-  if (loading) {
+  /* if (loading) {
     return <SkeletonLoader />;
-  }
+  } */
 
   const reviews = [
     {
@@ -75,25 +75,25 @@ function LandingPage() {
       value: '100K',
       label: 'Users Active',
       icon: <LucideUser size={24} />,
-      backgroundColor: 'bg-gray-50',
+      backgroundColor: 'bg-gray-50 dark:bg-black',
     },
     {
       value: 'Upto 40%',
       label: 'Reduce Hiring Time',
       icon: <LucideLink2 size={24} />,
-      backgroundColor: 'bg-gray-50',
+      backgroundColor: 'bg-gray-50 dark:bg-black',
     },
     {
       value: '30%',
       label: 'Interview Accuracy',
       icon: <LucideBox size={24} />,
-      backgroundColor: 'bg-gray-50',
+      backgroundColor: 'bg-gray-50 dark:bg-black',
     },
     {
       value: '20%',
       label: 'Employee Rates',
       icon: <LucideTreeDeciduous size={24} />,
-      backgroundColor: 'bg-gray-50',
+      backgroundColor: 'bg-gray-50 dark:bg-black',
     },
   ];
 
@@ -114,7 +114,7 @@ function LandingPage() {
           auto-rotate
           className="w-full h-full"
         ></model-viewer> */}
-        <RetroGrid opacity={0.8}/>
+        <RetroGrid opacity={0.8} />
       </div>
 
       {/* Hero Section */}
@@ -200,7 +200,7 @@ function LandingPage() {
               description: "Comprehensive view of candidate performance across interview enabling you to choose best candidates.",
             },
           ].map((item, index) => (
-            <div key={index} className="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200">
+            <div key={index} className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-black border border-gray-200">
               {item.icon}
               <div className="w-full mt-3">
                 <h3 className="text-xl font-bold">{item.title}</h3>
@@ -222,11 +222,11 @@ function LandingPage() {
             </Button>
           </section>
 
-          <section className="w-full md:w-1/2 grid grid-cols-2 gap-4">
+          <section className="w-full md:w-1/2 grid grid-cols-2 gap-4 dark:text-white">
             {data.map((item, index) => (
               <div
                 key={index}
-                className={`w-full p-4 flex flex-col items-center justify-center transition-colors duration-200 rounded-xl 
+                className={`w-full p-4 flex flex-col items-center dark:bg-black dark:border-[1px] justify-center transition-colors duration-200 rounded-xl 
                   ${hoveredIndex === index ? 'bg-emerald-500' : 'bg-gray-100'}`}
                 onMouseEnter={() => handleMouseEnter(index)}
                 onMouseLeave={handleMouseLeave}
@@ -234,10 +234,10 @@ function LandingPage() {
                 <div className={`flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full ${hoveredIndex === index ? 'bg-white' : item.backgroundColor}`}>
                   {item.icon}
                 </div>
-                <h4 className={`text-lg md:text-xl font-bold text-center mt-2 ${hoveredIndex === index ? 'text-white' : 'text-gray-800'}`}>
+                <h4 className={`text-lg md:text-xl font-bold text-center mt-2 ${hoveredIndex === index ? 'text-white' : 'text-gray-800 dark:text-white'}`}>
                   {item.value}
                 </h4>
-                <span className={`text-sm text-center ${hoveredIndex === index ? 'text-white' : 'text-gray-800'}`}>
+                <span className={`text-sm text-center ${hoveredIndex === index ? 'text-white' : 'text-gray-800 dark:text-gray-500'}`}>
                   {item.label}
                 </span>
               </div>
@@ -267,7 +267,7 @@ function LandingPage() {
               Our features are meticulously crafted to empower you with tools you need to make informed decisions, foster a fair evaluation environment, and ultimately build exceptional teams.
             </p>
             <div className="space-y-6">
-              <div className="bg-slate-100 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-slate-100 rounded-xl p-6 hover:shadow-lg transition-shadow dark:bg-black dark:border-[2px] dark:border-white">
                 <h3 className="text-2xl md:text-3xl font-bold mb-3">Behavioral Analysis</h3>
                 <p className="text-gray-600 text-base font-medium mb-4">
                   Leverage NLP and video analysis to gain insights into candidates, communication skills, body language and cultural fit, helping you make holistic hiring decisions.
@@ -276,7 +276,7 @@ function LandingPage() {
                   Learn More <GoArrowUpRight className="inline ml-2" />
                 </Button>
               </div>
-              <div className="bg-slate-100 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-slate-100 rounded-xl p-6 hover:shadow-lg transition-shadow dark:bg-black dark:border-[2px] dark:border-white">
                 <h3 className="text-2xl md:text-3xl font-bold mb-3">Real Time Feedback</h3>
                 <p className="text-gray-600 text-base font-medium mb-4">
                   Get AI generated feedbacks during live interviews, assisting interviewers in asking follow-up questions and addressing potential concerns.
@@ -313,21 +313,21 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="w-full bg-emerald-600 rounded-t-2xl mt-4">
+      <section className="w-full bg-white rounded-t-2xl mt-4 dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 py-16 md:h-[450px] flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="w-full text-center md:text-left">
-            <h3 className="text-2xl md:text-4xl text-white font-bold leading-tight mb-4">
+            <h3 className="text-2xl md:text-4xl font-bold leading-tight mb-4 text-emerald-500 dark:text-white"> {/* Light theme color, dark mode color */}
               Ready to Revolutionize <br /> your Hiring?
             </h3>
-            <p className="text-white/90 text-base md:text-lg mb-6 hidden md:block">
+            <p className="text-gray-600 text-base md:text-lg mb-6 hidden md:block dark:text-gray-400"> {/* Improved light text color */}
               Let our users tell you how their opinion about using QuestlyAI as their partner.
             </p>
             <div className="flex flex-col md:flex-row items-center gap-4">
-              <Button className="px-6 py-2.5 rounded-full bg-white text-black hover:bg-gray-100 transition-colors">
-                Get Started <GoArrowUpRight className="inline ml-2" />
+              <Button className="px-6 py-2.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"> {/* Light theme button color */}
+                Get Started <GoArrowUpRight className="inline ml-2 text-white dark:text-white" /> {/* Light theme icon color */}
               </Button>
-              <Button className="hidden md:flex px-6 py-2.5 rounded-full bg-transparent border border-white text-white hover:bg-white/10 transition-colors">
-                Learn More <GoArrowUpRight className="inline ml-2" />
+              <Button className="hidden md:flex px-6 py-2.5 rounded-full bg-transparent border border-emerald-500 text-emerald-500 hover:bg-emerald-100 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"> {/* Light theme button color and border */}
+                Learn More <GoArrowUpRight className="inline ml-2 text-emerald-500 dark:text-white" />{/* Light theme icon color */}
               </Button>
             </div>
           </div>

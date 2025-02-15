@@ -8,6 +8,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { usePathname, useRouter } from "next/navigation";
 import { logout } from "@/app/store/AuthSlice";
 import { useToast } from "@/hooks/use-toast";
+import { useClerk } from "@clerk/clerk-react";
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const Navbar = () => {
     const [menu, setMenu] = useState(false);
@@ -16,6 +25,9 @@ const Navbar = () => {
     const router = useRouter()
     const pathname = usePathname()
     const { toast } = useToast()
+    const { signOut } = useClerk()
+    const { setTheme, theme } = useTheme()
+    console.log(authStatus)
 
     const navItems = [
         {
@@ -37,10 +49,9 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         try {
-            // Implement your logout logic here
-            // Example:
-            // await signOut()
-            
+
+            await signOut()
+
             dispatch(logout())
             router.push("/")
         } catch (error) {
@@ -54,14 +65,14 @@ const Navbar = () => {
     }
 
     return (
-        <header className="bg-white/80 backdrop-blur-lg border-b shadow-sm sticky top-0 w-full z-50 md:px-4">
+        <header className="bg-white/80 backdrop-blur-lg dark:bg-black dark:text-white border-b shadow-sm sticky top-0 w-full z-50 md:px-4">
             <div className="w-full flex items-center justify-between py-2 px-4">
                 {/* Logo */}
                 <div className=" w-[30%] md:w-[20%] h-full p-2">
                     <Link href={"/"} className="w-full h-[73px]">
                         <div className="w-full flex items-center">
                             <Image
-                                src={"/logo-cropped.svg"}
+                                src={`${theme === "dark" ? "/white-logo.svg" : "/logo-cropped.svg"}`}
                                 alt="Logo"
                                 height={80}
                                 width={80}
@@ -88,7 +99,25 @@ const Navbar = () => {
                     ))}
                 </div>
 
-                <nav className="hidden md:flex items-center gap-8 text-black">
+                <nav className="hidden md:flex items-center gap-8 text-black dark:text-white">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="icon">
+                                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setTheme("light")}>
+                                Light
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setTheme("dark")}>
+                                Dark
+                            </DropdownMenuItem>
+
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     {authStatus ? <Button onClick={handleLogout} className="px-8 py-3 rounded-full bg-red-500  text-white hover:bg-red-700 hover: font-medium transition duration-200">
                         Logout
                     </Button> : <Button className="px-8 py-3 rounded-full bg-[#18B088]  text-white hover:bg-green-800 hover: font-medium transition duration-200">
@@ -98,7 +127,25 @@ const Navbar = () => {
                 </nav>
 
                 {/* Mobile Menu Toggle */}
-                <div className="md:hidden">
+                <div className="md:hidden flex gap-2 items-center">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="icon">
+                                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setTheme("light")}>
+                                Light
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setTheme("dark")}>
+                                Dark
+                            </DropdownMenuItem>
+
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     <Hamburger toggled={menu} toggle={setMenu} />
                 </div>
 
@@ -106,8 +153,8 @@ const Navbar = () => {
 
             {/* Mobile Menu */}
             {menu && (
-                <div className="dropdown-animation w-full absolute top-auto md:hidden px-4 bg-gray-100 p-4 rounded-b-lg overflow-hidden">
-                    <nav className="flex flex-col gap-3 text-black">
+                <div className="dropdown-animation w-full absolute top-auto md:hidden px-4 bg-gray-100 p-4 rounded-b-lg overflow-hidden dark:bg-gray-950">
+                    <nav className="flex flex-col gap-3 text-black dark:text-white">
                         {navItems.map((navItem, index) => (
                             navItem.show && (
                                 <Button

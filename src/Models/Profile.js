@@ -35,6 +35,10 @@ const ProfileSchema = new mongoose.Schema({
             this.role === "recruiter"
         },
         type: {
+            username: {
+                required: true,
+                type: String
+            },
             companyName: {
                 required: true,
                 type: String
@@ -55,6 +59,10 @@ const ProfileSchema = new mongoose.Schema({
             this.role === "candidate"
         },
         type: {
+            username: {
+                required: true,
+                type: String
+            },
             email: {
                 type: String,
                 required: true

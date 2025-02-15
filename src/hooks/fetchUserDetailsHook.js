@@ -1,13 +1,19 @@
+import { fetchUserDetails as fetchUserAction } from "@/app/actions/userActions";
 
 export async function fetchUserDetails(userId) {
     try {
-        const response = await fetch("/api/fetch-user-details")
-        const data = await response.json()
+        if (!userId) return null;
 
-        console.log(data)
+        const result = await fetchUserAction(userId);
 
-        return JSON.parse(JSON.stringify(data))
+        if (!result.success) {
+            console.error("Error fetching user details:", result.message);
+            return null;
+        }
+
+        return result.userDetails;
     } catch (error) {
-        console.error("An error occured in fetching details")
+        console.error("Error in fetchUserDetails:", error);
+        return null;
     }
 }

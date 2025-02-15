@@ -1,26 +1,24 @@
-import React from 'react'
-import HomePageContainer from './components/HomePageContainer/HomePageContainer'
-import { auth, currentUser } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import { fetchUserDetails } from '@/hooks/fetchUserDetailsHook';
+import React from 'react';
+import HomePageContainer from './components/HomePageContainer/HomePageContainer';
+import { fetchUserDetails } from '@/app/actions/userActions';
+import { auth } from '@clerk/nextjs/server';
 
 async function page() {
-    const { userId } = await auth()
-    const user = await currentUser()
-    let profileDetails = await fetchUserDetails(userId)
+    const { userId } = await auth();
+
+    let userDetails
     if (userId) {
-        if (user && !profileDetails?._id) {
-            redirect("/onboard")
-        } else if (user && profileDetails?._id) redirect("/")
+        const result = await fetchUserDetails(userId);
+        userDetails = result.success ? result.userDetails : null;
     }
 
 
 
     return (
-        <div className='w-full h-full px-4 md:px-8 '>
-            <HomePageContainer userId={userId} />
+        <div className="w-full h-full px-4 md:px-8">
+            <HomePageContainer userId={userId} userDetails={userDetails} />
         </div>
-    )
+    );
 }
 
-export default page
+export default page;

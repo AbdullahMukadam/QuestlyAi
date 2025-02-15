@@ -3,6 +3,7 @@ import "./globals.css";
 import CommonLayout from "./common-layout";
 import { Suspense } from "react";
 import SkeletonLoader from "./components/landing-page/loader";
+import { ThemeProvider } from "./components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,15 +25,21 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-
       >
-        <div className="min-h-screen flex flex-col items-center bg-slate-50">
-          <main className="w-full max-w-7xl mx-auto">
-            <Suspense fallback={<SkeletonLoader />}>
-              <CommonLayout>{children}</CommonLayout>
-            </Suspense>
-          </main>
-        </div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange>
+          <div className="min-h-screen flex flex-col items-center bg-slate-50 dark:bg-black">
+            <main className="w-full max-w-7xl mx-auto">
+              <Suspense fallback={<SkeletonLoader />}>
+                <CommonLayout>{children}</CommonLayout>
+              </Suspense>
+            </main>
+          </div>
+        </ThemeProvider>
+
 
 
       </body>

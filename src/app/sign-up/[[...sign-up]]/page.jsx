@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import Image from "next/image";
 import { SignUp } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
 const commonStyles = {
     inputIcon:
@@ -66,8 +67,12 @@ const Page = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center justify-center px-4 py-10 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
-                   <SignUp />
+                <div className="flex items-center justify-center px-4 py-10 dark:bg-black bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
+                   <SignUp 
+                   appearance={{
+                    baseTheme: dark
+                   }}
+                   />
                 </div>
             </div>
         </section>

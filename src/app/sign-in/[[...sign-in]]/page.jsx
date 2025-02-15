@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import Image from "next/image";
 import { SignIn } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
 const commonStyles = {
     inputIcon:
@@ -25,7 +26,7 @@ const Page = () => {
 
 
     return (
-        <section className="bg-white">
+        <section className="bg-white dark:bg-black">
             <div className="grid grid-cols-1 lg:grid-cols-2">
                 <div className="relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 bg-gray-50 sm:px-6 lg:px-8">
                     <div className="absolute inset-0">
@@ -66,8 +67,12 @@ const Page = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center justify-center px-4 py-10 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
-                    <SignIn />
+                <div className="flex items-center justify-center px-4 py-10 bg-white dark:bg-black sm:px-6 lg:px-8 sm:py-16 lg:py-24">
+                    <SignIn 
+                    appearance={{
+                        baseTheme: dark
+                    }}
+                    />
                 </div>
             </div>
         </section>
