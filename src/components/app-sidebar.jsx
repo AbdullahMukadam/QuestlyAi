@@ -52,8 +52,8 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
-      url: "#",
+      title: "How it Works",
+      url: "/how-it-works",
       icon: SquareTerminal,
       isActive: true,
       items: [
@@ -71,7 +71,7 @@ const data = {
         },
       ],
     },
-    {
+    /* {
       title: "Models",
       url: "#",
       icon: Bot,
@@ -89,7 +89,7 @@ const data = {
           url: "#",
         },
       ],
-    },
+    }, */
     {
       title: "Documentation",
       url: "#",
@@ -114,8 +114,8 @@ const data = {
       ],
     },
     {
-      title: "Settings",
-      url: "#",
+      title: "Profile",
+      url: "/profile",
       icon: Settings2,
       items: [
         {
@@ -137,7 +137,7 @@ const data = {
       ],
     },
   ],
-  projects: [
+  Recent: [
     {
       name: "Design Engineering",
       url: "#",
@@ -166,7 +166,7 @@ export function AppSidebar({
       </SidebarHeader> */}
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={data.Recent} />
       </SidebarContent>
       {/* <SidebarFooter>
         <NavUser user={data.user} />

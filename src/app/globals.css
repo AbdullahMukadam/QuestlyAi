@@ -113,13 +113,13 @@ html {
 }
 
 /* Add this to your global CSS or component-specific CSS */
-.model-viewer-container {
+/* .model-viewer-container {
   width: 100%;
-  aspect-ratio: 16 / 9; /* 16:9 aspect ratio */
+  aspect-ratio: 16 / 9; 
   position: relative;
 }
 
 model-viewer {
   width: 100%;
   height: 100%;
-}
+} */
