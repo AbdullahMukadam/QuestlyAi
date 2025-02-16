@@ -1,15 +1,18 @@
 import React from 'react';
 import HomePageContainer from './components/HomePageContainer/HomePageContainer';
 import { fetchUserDetails } from '@/app/actions/userActions';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 
 async function page() {
     const { userId } = await auth();
 
-    let userDetails
+    let userDetails;
+    let user;
+
     if (userId) {
-        const result = await fetchUserDetails(userId);
-        userDetails = result.success ? result.userDetails : null;
+        user = await currentUser()
+        userDetails = await fetchUserDetails(userId);
+
     }
 
 

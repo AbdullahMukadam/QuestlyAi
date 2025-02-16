@@ -17,6 +17,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { removeData } from "@/app/store/UserDataSlice";
 
 const Navbar = () => {
     const [menu, setMenu] = useState(false);
@@ -27,7 +28,6 @@ const Navbar = () => {
     const { toast } = useToast()
     const { signOut } = useClerk()
     const { setTheme, theme } = useTheme()
-    console.log(authStatus)
 
     const navItems = [
         {
@@ -43,16 +43,20 @@ const Navbar = () => {
         {
             item: "Pricing",
             link: "/Pricing",
-            show: !authStatus
+            show: authStatus
+        },
+        {
+            item: "Dashboard",
+            link: "/dashboard",
+            show: authStatus
         },
     ]
 
     const handleLogout = async () => {
         try {
-
             await signOut()
-
             dispatch(logout())
+            dispatch(removeData())
             router.push("/")
         } catch (error) {
             console.error("Logout error:", error)
@@ -65,113 +69,119 @@ const Navbar = () => {
     }
 
     return (
-        <header className="bg-white/80 backdrop-blur-lg dark:bg-black dark:text-white border-b shadow-sm sticky top-0 w-full z-50 md:px-4">
-            <div className="w-full flex items-center justify-between py-2 px-4">
-                {/* Logo */}
-                <div className=" w-[30%] md:w-[20%] h-full p-2">
-                    <Link href={"/"} className="w-full h-[73px]">
-                        <div className="w-full flex items-center">
+        <header className="sticky top-0 w-full bg-white/80 dark:bg-black/60 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 z-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                <div className="flex justify-between items-center h-16">
+                    {/* Logo */}
+                    <div className="flex-shrink-0">
+                        <Link href="/" className="flex items-center">
                             <Image
-                                src={`${theme === "dark" ? "/white-logo.svg" : "/logo-cropped.svg"}`}
+                                src={theme === "dark" ? "/white-logo.svg" : "/logo-cropped.svg"}
                                 alt="Logo"
-                                height={80}
-                                width={80}
+                                height={50}
+                                width={50}
+                                className="h-8 w-auto"
                             />
+                        </Link>
+                    </div>
+
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center space-x-8">
+                        <nav className="flex items-center space-x-6">
+                            {navItems.map((navItem, index) => (
+                                navItem.show && (
+                                    <Link
+                                        key={index}
+                                        href={navItem.link}
+                                        className={`text-sm font-medium transition-colors ${pathname === navItem.link
+                                            ? "text-green-600 dark:text-green-400"
+                                            : "text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400"
+                                            }`}
+                                    >
+                                        {navItem.item}
+                                    </Link>
+                                )
+                            ))}
+                        </nav>
+
+                        <div className="flex items-center space-x-4">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-9 w-9">
+                                        <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
+                                        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-32">
+                                    <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            {authStatus ? (
+                                <Button
+                                    onClick={handleLogout}
+                                    variant="destructive"
+                                    className="h-9"
+                                >
+                                    Logout
+                                </Button>
+                            ) : (
+                                <Button
+                                    className="h-9 bg-green-600 hover:bg-green-700"
+                                >
+                                    Get Started
+                                </Button>
+                            )}
                         </div>
-                    </Link>
+                    </div>
+
+                    {/* Mobile menu button */}
+                    <div className="md:hidden flex items-center space-x-2">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-9 w-9">
+                                    <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
+                                    <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-32">
+                                <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <Hamburger toggled={menu} toggle={setMenu} size={20} />
+                    </div>
                 </div>
-
-                {/* Desktop Links */}
-                <div className="w-[300px] hidden md:flex items-center justify-center gap-6 p-2 border-2 border-gray-300 rounded-full">
-                    {navItems.map((navItem, index) => (
-                        navItem.show && (
-                            <button
-                                key={index}
-                                variant="ghost"
-                                className={`${pathname.toString() === navItem.link ? "bg-[#18B088]" : ""} px-4 py-2 rounded-full hover:bg-[#18b087a6]`}
-                            >
-                                <Link href={navItem.link} className="flex items-center ">
-
-                                    <span className="font-bold text-gray-600 text-[14px]">{navItem.item}</span>
-                                </Link>
-                            </button>
-                        )
-                    ))}
-                </div>
-
-                <nav className="hidden md:flex items-center gap-8 text-black dark:text-white">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setTheme("light")}>
-                                Light
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setTheme("dark")}>
-                                Dark
-                            </DropdownMenuItem>
-
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    {authStatus ? <Button onClick={handleLogout} className="px-8 py-3 rounded-full bg-red-500  text-white hover:bg-red-700 hover: font-medium transition duration-200">
-                        Logout
-                    </Button> : <Button className="px-8 py-3 rounded-full bg-[#18B088]  text-white hover:bg-green-800 hover: font-medium transition duration-200">
-                        Get Started
-                    </Button>}
-
-                </nav>
-
-                {/* Mobile Menu Toggle */}
-                <div className="md:hidden flex gap-2 items-center">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setTheme("light")}>
-                                Light
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setTheme("dark")}>
-                                Dark
-                            </DropdownMenuItem>
-
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Hamburger toggled={menu} toggle={setMenu} />
-                </div>
-
             </div>
 
-            {/* Mobile Menu */}
+            {/* Mobile menu */}
             {menu && (
-                <div className="dropdown-animation w-full absolute top-auto md:hidden px-4 bg-gray-100 p-4 rounded-b-lg overflow-hidden dark:bg-gray-950">
-                    <nav className="flex flex-col gap-3 text-black dark:text-white">
+                <div className="md:hidden border-t border-gray-200 dark:border-gray-800">
+                    <div className="space-y-1 px-4 pb-3 pt-2">
                         {navItems.map((navItem, index) => (
                             navItem.show && (
-                                <Button
+                                <Link
                                     key={index}
-                                    variant="ghost"
-                                    className={`${menu ? 'justify-start w-full' : 'h-9'} gap-2`}
+                                    href={navItem.link}
+                                    className={`block px-3 py-2 rounded-md text-base font-medium ${pathname === navItem.link
+                                        ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+                                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                        }`}
+                                    onClick={() => setMenu(false)}
                                 >
-                                    <Link href={navItem.link} className="flex items-center gap-2">
-                                        <span>{navItem.item}</span>
-                                    </Link>
-                                </Button>
+                                    {navItem.item}
+                                </Link>
                             )
                         ))}
-                        <Button className="px-6 py-3 mt-4 bg-[#18B088] rounded-full text-white hover:bg-green-800 hover:text-black transition duration-200">
-                            Get Started
-                        </Button>
-                    </nav>
+                        {!authStatus && (
+                            <Button
+                                className="w-full mt-4 bg-green-600 hover:bg-green-700"
+                            >
+                                Get Started
+                            </Button>
+                        )}
+                    </div>
                 </div>
             )}
         </header>

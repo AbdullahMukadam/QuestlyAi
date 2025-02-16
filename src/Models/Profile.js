@@ -10,6 +10,10 @@ const ProfileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        required: true
+    },
     isPremiumUser: {
         type: Boolean,
         default: false
@@ -43,10 +47,6 @@ const ProfileSchema = new mongoose.Schema({
                 required: true,
                 type: String
             },
-            companyEmail: {
-                required: true,
-                type: String
-            },
             companyRole: {
                 required: true,
                 type: String
@@ -63,10 +63,11 @@ const ProfileSchema = new mongoose.Schema({
                 required: true,
                 type: String
             },
-            email: {
+            Skills: {
                 type: String,
                 required: true
             },
+
             _id: false
         }
     }

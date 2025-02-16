@@ -1,50 +1,53 @@
 "use server"
 import connectToDb from "@/database/connectToDb";
 import Profile from "@/Models/Profile";
+import { revalidatePath } from "next/cache";
 
 export async function fetchUserDetails(userId) {
+    await connectToDb();
+    const result = await Profile.findOne({ userId });
+
+    return JSON.parse(JSON.stringify(result));
+}
+
+export async function createCandidateUserProfile(userData, pathtoRevalidate) {
     try {
-        await connectToDb()
+        // Connect to database
+        await connectToDb();
 
-        if (!userId) {
-            throw new Error("UserId is required")
+        const formattedData = {
+            ...userData,
+            isPremiumUser: userData.isPremiumUser ?? false,
+            memberShipType: userData.memberShipType ?? 'free',
+            memberShipStartDate: userData.memberShipStartDate ?? new Date().toISOString(),
+            memberShipEndDate: userData.memberShipEndDate ?? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
         }
 
-        const fetchedUserDetails = await Profile.findOne({ userId })
-
-        if (!fetchedUserDetails) {
-            throw new Error("User Not Found")
+        const user = await Profile.create(formattedData);
+        if (!user) {
+            throw new Error("Unable to create user");
         }
 
+        if (pathtoRevalidate) {
+            revalidatePath(pathtoRevalidate);
+        }
         return {
             success: true,
-            userDetails: fetchedUserDetails,
-            message: "Fetched user Details Successfully"
-        }
+            userDetails: user
+        };
 
     } catch (error) {
-        console.error("Error in fetchUserDetails:", error);
+        console.error("Error in createUserProfile:", error);
         return {
             success: false,
             message: error.message || "Internal Server Error"
-        }
+        };
     }
 }
 
-export async function createUserProfile(userData) {
+
+export async function createRecruiterUserprofile(userData) {
     try {
-        await connectToDb()
-
-        const User = await Profile.create(userData)
-        if (!User) {
-            throw new Error("Unable to create the user")
-        }
-
-        return {
-            success: true,
-            user: User,
-            message: "User Successfully Created"
-        }
 
     } catch (error) {
         console.error("Error in createUserProfile:", error);
@@ -52,5 +55,6 @@ export async function createUserProfile(userData) {
             success: false,
             message: error.message || "Internal Server Error"
         }
+
     }
-} 
+}
