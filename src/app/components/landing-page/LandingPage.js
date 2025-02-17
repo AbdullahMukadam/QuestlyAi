@@ -95,7 +95,7 @@ function LandingPage() {
   ];
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative font-sans">
       <Script
         src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
         strategy="afterInteractive"
