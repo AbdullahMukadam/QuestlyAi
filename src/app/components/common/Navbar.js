@@ -18,6 +18,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { removeData } from "@/app/store/UserDataSlice";
+import { removeQuestions } from "@/app/store/InterviewQuestionSlice";
 
 const Navbar = () => {
     const [menu, setMenu] = useState(false);
@@ -57,6 +58,7 @@ const Navbar = () => {
             await signOut()
             dispatch(logout())
             dispatch(removeData())
+            dispatch(removeQuestions())
             router.push("/")
         } catch (error) {
             console.error("Logout error:", error)

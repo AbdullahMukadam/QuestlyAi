@@ -1,10 +1,11 @@
 import InterviewScreen from '@/app/components/InterviewScreen/InterviewScreen'
 import React from 'react'
 
-function page() {
+async function page({params}) {
+    const id = await params
     return (
         <div className='w-full p-3'>
-            <InterviewScreen />
+            <InterviewScreen id={id.id} />
         </div>
     )
 }

@@ -81,8 +81,9 @@ export default function Onboard() {
             }
 
             const userDetails = await createCandidateUserProfile(userData, "/")
-            if (userDetails.success) {
-                dispatch(addData(userDetails.userDetails))
+            if (userDetails) {
+                dispatch(addData(userDetails))
+                router.push("/")
             }
 
 

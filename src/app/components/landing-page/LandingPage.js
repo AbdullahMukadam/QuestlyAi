@@ -104,7 +104,9 @@ function LandingPage() {
 
       {/* 3D Model Viewer */}
       <div className="model-viewer-container relative w-full h-[350px] md:h-[600px]">
-        <InteractiveGridPattern className="absolute inset-0 w-full h-full" width={50} />
+        <RetroGrid className="absolute inset-0 w-full h-full" width={50} angle={20} opacity={0.5} />
+        <div className="pointer-events-none absolute top-[8%] left-0 w-[50%] h-1/4 " />
+        <div className="pointer-events-none absolute top-[8%] right-0 w-[50%] h-1/4 " />
       </div>
 
       {/* Hero Section */}
