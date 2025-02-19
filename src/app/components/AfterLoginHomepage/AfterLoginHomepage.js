@@ -1,6 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Dialog,
@@ -21,7 +21,9 @@ import { chatSession } from '@/utils/geminiapi'
 import { addQuestions } from '@/app/store/InterviewQuestionSlice'
 import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid';
-import { AddInterviewQuestions } from '@/app/actions/QuestionsAction'
+import { AddInterviewQuestions, fetchAllInterviewDetails } from '@/app/actions/QuestionsAction'
+import { Card, CardContent } from '@/components/ui/card'
+import Link from 'next/link'
 
 function AfterLoginHomepage() {
   const userData = useSelector((state) => state.userData.userData)
@@ -32,6 +34,9 @@ function AfterLoginHomepage() {
   const { toast } = useToast()
   const dispatch = useDispatch()
   const router = useRouter()
+  const [loading, setloading] = useState(false)
+  const [Interviews, setInterviews] = useState(null)
+  
 
   const submitHandler = async (data) => {
     seterror("")
@@ -44,6 +49,7 @@ function AfterLoginHomepage() {
         const uniqueId = uuidv4()
         const questionData = {
           id: uniqueId,
+          userId: userData.userId,
           jobType: data.Jobtype,
           jobDescription: data.Description,
           jobExperience: Experience,
@@ -71,6 +77,29 @@ function AfterLoginHomepage() {
       })
     }
   }
+
+  const fetchAllInterviews = async () => {
+    try {
+      setloading(true)
+      const interviews = await fetchAllInterviewDetails()
+      if (interviews) {
+        const filteredInterviews = interviews.filter((interview) => interview.userId === userData.userId)
+        setInterviews(filteredInterviews)
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occured in fetching all interviews" || error.message,
+        variant: "destructive"
+      })
+    } finally {
+      setloading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAllInterviews()
+  }, [dispatch])
 
   if (userData?.role === "candidate") {
     return (
@@ -158,10 +187,34 @@ function AfterLoginHomepage() {
             </DialogContent>
           </Dialog>
           <div className='w-full mt-9'>
-            <h2 className='font-bold text-xl'>Previuos Mock Interviews</h2>
-            
+            <h2 className='font-bold text-xl'>Previous Mock Interviews</h2>
+            {Interviews?.length > 0 ? (
+              Interviews.map((interview, index) => (
+                < Card className="w-full p-2 h-fit md:w-[30%] mt-2" key={index}>
+                  <CardContent className="w-full flex flex-col">
+                    <div className='flex gap-3 items-center'>
+                      <span className="text-sm text-gray-500">Job Type:</span>
+                      <p className="text-lg font-medium capitalize">{interview.jobType}</p>
+                    </div>
+                    <div className='flex gap-3 items-center'>
+                      <span className="text-sm text-gray-500">Job Description:</span>
+                      <p className="text-lg font-medium capitalize">{interview.jobDescription}</p>
+                    </div>
+                    <div className='flex gap-3 items-center'>
+                      <span className="text-sm text-gray-500">Job Experience:</span>
+                      <p className="text-lg font-medium capitalize">{interview.jobExperience}</p>
+                    </div>
+                    <div className='w-full flex justify-end'>
+                      <Link href={`/interview-screen/${interview.id}`}>Start</Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <p className='text-red-500 font-semibold mt-2'>No Interviews Found, Add Some</p>
+            )}
           </div>
-        </div>
+        </div >
       </>
     )
   } else {

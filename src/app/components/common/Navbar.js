@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Squash as Hamburger } from 'hamburger-react'
 import { useDispatch, useSelector } from "react-redux";
 import { usePathname, useRouter } from "next/navigation";
@@ -22,13 +22,24 @@ import { removeQuestions } from "@/app/store/InterviewQuestionSlice";
 
 const Navbar = () => {
     const [menu, setMenu] = useState(false);
-    const authStatus = useSelector((state) => state.auth.authStatus)
+    const Status = useSelector((state) => state.auth.authStatus)
+    const [authStatus, setauthStatus] = useState(false)
     const dispatch = useDispatch()
     const router = useRouter()
     const pathname = usePathname()
     const { toast } = useToast()
     const { signOut } = useClerk()
     const { setTheme, theme } = useTheme()
+
+    useEffect(() => {
+        const status = localStorage.getItem("authStatus")
+        //console.log(status)
+        if (status === "true") {
+            setauthStatus(true)
+        } else {
+            setauthStatus(false)
+        }
+    }, [authStatus, dispatch, Status])
 
     const navItems = [
         {
@@ -59,6 +70,8 @@ const Navbar = () => {
             dispatch(logout())
             dispatch(removeData())
             dispatch(removeQuestions())
+            localStorage.removeItem("authStatus")
+            setauthStatus(false)
             router.push("/")
         } catch (error) {
             console.error("Logout error:", error)
@@ -119,6 +132,7 @@ const Navbar = () => {
                                     <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
+
 
                             {authStatus ? (
                                 <Button

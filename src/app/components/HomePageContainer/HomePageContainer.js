@@ -15,6 +15,7 @@ function HomePageContainer({ userId, userDetails }) {
     useEffect(() => {
         if (userId && !authStatus) {
             dispatch(login())
+            localStorage.setItem("authStatus", "true")
 
             if (!userDetails?._id) {
                 router.push("/onboard")
