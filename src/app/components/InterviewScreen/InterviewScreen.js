@@ -1,16 +1,25 @@
-"use client"
+
+'use client'
+
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  CardDescription
 } from "@/components/ui/card"
 import { fetchInterviewDetails } from '@/app/actions/QuestionsAction'
 import Webcam from 'react-webcam'
-import { WebcamIcon } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Camera, Loader2, MicIcon, Volume2, StopCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { TypingAnimation } from '@/components/magicui/typing-animation'
+import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import useSpeechToText from 'react-hook-speech-to-text'
 
 function InterviewScreen({ id }) {
   const [interviewDetails, setinterviewDetails] = useState(null)
@@ -22,10 +31,20 @@ function InterviewScreen({ id }) {
   const [questions, setquestions] = useState(null)
   const [index, setindex] = useState(0)
   const [startedSpeech, setstartedSpeech] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const {
+    error,
+    interimResult,
+    isRecording,
+    results,
+    startSpeechToText,
+    stopSpeechToText,
+  } = useSpeechToText({
+    continuous: true,
+    useLegacyResults: false
+  });
 
-  //console.log(questions.length)
   useEffect(() => {
-
     if (!dataFetched.current && id) {
       const fetchData = async () => {
         try {
@@ -48,109 +67,267 @@ function InterviewScreen({ id }) {
 
   const handleInterviewStart = () => {
     setstartInterview(true)
-    /*  if (webcamEnable) {
-       setstartInterview(true)
-     } else {
-       setstartInterview(false)
-     } */
   }
 
-  const handleSpeechSynthesis = () => {
+  const handleSpeechSynthesis = (question) => {
+    // Cancel any ongoing speech
+    speechSynthesis.cancel()
+
     setstartedSpeech(true)
-    const message = questions[index]
-    let utterance = new SpeechSynthesisUtterance(message)
+    setIsSpeaking(true)
+
+    const utterance = new SpeechSynthesisUtterance(question)
+
+    utterance.onend = () => {
+      setIsSpeaking(false)
+    }
+
+    utterance.onerror = () => {
+      setIsSpeaking(false)
+    }
+
     speechSynthesis.speak(utterance)
   }
 
+  const stopSpeech = () => {
+    speechSynthesis.cancel()
+    setIsSpeaking(false)
+  }
+
+  // Handle navigation with automatic speech
+  const handleNavigation = (newIndex) => {
+    setindex(newIndex)
+    handleSpeechSynthesis(questions[newIndex])
+  }
+
+  // Cleanup speech synthesis when component unmounts
+  useEffect(() => {
+    return () => {
+      speechSynthesis.cancel()
+    }
+  }, [])
+
+
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <span className="text-lg">Loading...</span>
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-lg font-medium text-muted-foreground">Loading interview...</p>
+        </div>
       </div>
     )
   }
 
   if (startInterview) {
-    return (
-      <div className='w-full p-4'>
-        <div className='w-full'>
-          <Card>
-            <CardContent>
-              <div className='w-full flex items-center justify-between mt-2'>
-                <Button variant="outline" disabled={index === 0} onClick={() => setindex(index - 1)}>Prev</Button>
-                <Button variant="outline" disabled={questions.length - 1 === index} onClick={() => setindex(index + 1)}>Next</Button>
-              </div>
-              <div className='w-full bg-zinc-900 flex items-center gap-3 flex-col'>
-                <h1 className='font-semibold'>Question:</h1>
-                <Button onClick={handleSpeechSynthesis}>Start</Button>
-                {/*Todo: To add Voice Visualizer */}
-                {startedSpeech && <TypingAnimation className={"text-sm text-center"}>{questions[index]}</TypingAnimation>}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        <div>
+    const progress = ((index + 1) / questions.length) * 100
 
+
+    return (
+      <div className="container mx-auto max-w-4xl py-8 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Question {index + 1} of {questions.length}</span>
+              <Progress value={progress} className="w-1/3" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Webcam Feed */}
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                {webcamEnable ? (
+                  <>
+                    <Webcam
+                      className="w-full h-full object-cover relative"
+                      mirrored={true}
+                    />
+                  </>
+
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                    <Camera className="h-12 w-12 mb-2" />
+                    <p>Camera is disabled</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Question Display */}
+              <div className="space-y-4">
+                <div className="min-h-[200px] p-4 rounded-lg bg-muted/50 relative">
+                  {startedSpeech ? (
+                    <>
+                      <TypingAnimation className="text-lg">
+                        {questions[index]}
+                      </TypingAnimation>
+                      {isSpeaking && (
+                        <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                          <Volume2 className="h-5 w-5 text-primary animate-pulse" />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={stopSpeech}
+                            className="h-8 px-2"
+                          >
+                            <StopCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="h-full flex items-center justify-center">
+                      <Button
+                        onClick={() => handleSpeechSynthesis(questions[index])}
+                        className="gap-2"
+                      >
+                        <MicIcon className="h-4 w-4" />
+                        Start Question
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Question Controls */}
+                <div className="flex justify-between items-center">
+                  <Button
+                    variant="outline"
+                    disabled={index === 0}
+                    onClick={() => handleNavigation(index - 1)}
+                    className="gap-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+
+                  {/* Replay Button */}
+                  {startedSpeech && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleSpeechSynthesis(questions[index])}
+                      disabled={isSpeaking}
+                      className="gap-2"
+                    >
+                      <Volume2 className="h-4 w-4" />
+                      Replay
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    disabled={questions.length - 1 === index}
+                    onClick={() => handleNavigation(index + 1)}
+                    className="gap-2"
+                  >
+                    Next
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <div className='flex items-center justify-between'>
+          <Button onClick={() => setstartInterview(false)} variant="outline">End Interview</Button>
+          <Button>Record Answer</Button>
         </div>
+
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto max-w-4xl p-6">
-      <h1 className="mb-8 text-3xl font-bold text-center">Let's get started</h1>
-      <div className='flex items-center justify-center mb-2'>
-        <Button onClick={() => router.push("/")}>Back To HomePage</Button>
+    <div className="container mx-auto max-w-4xl p-6 space-y-6">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold">Interview Preparation</h1>
+        <p className="text-muted-foreground">Get ready for your mock interview session</p>
       </div>
-      {!webcamEnable && <h3 className='font-semibold text-red-600 text-center mb-3'>Please Enable Webcam to get started.<br /> Dont worry we wont record your video</h3>}
-      <div className="grid gap-8 md:grid-cols-2">
-        {/* Job Details Card */}
-        <Card className="h-fit shadow-md">
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <div>
-                <span className="text-sm text-gray-500">Job Type</span>
-                <p className="text-lg font-medium capitalize">{interviewDetails.jobType}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">Job Description</span>
-                <p className="text-lg font-medium capitalize">{interviewDetails.jobDescription}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">Experience Required</span>
-                <p className="text-lg font-medium capitalize">{interviewDetails.jobExperience}</p>
-              </div>
+
+      <div className="flex justify-center">
+        <Button
+          variant="outline"
+          onClick={() => router.push("/")}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Button>
+      </div>
+
+      {!webcamEnable && (
+        <Alert>
+          <AlertDescription className="text-center">
+            Please enable your camera to begin the interview session.
+            Your video will not be recorded.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Job Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Position Details</CardTitle>
+            <CardDescription>Review your interview settings</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Role</p>
+              <p className="font-medium capitalize">{interviewDetails.jobType}</p>
             </div>
-            <Button className="mt-2" onClick={handleInterviewStart}>Start Interview</Button>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Description</p>
+              <p className="font-medium capitalize">{interviewDetails.jobDescription}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Experience</p>
+              <p className="font-medium capitalize">{interviewDetails.jobExperience}</p>
+            </div>
           </CardContent>
+          <CardFooter>
+            <Button
+              className="w-full"
+              onClick={handleInterviewStart}
+              disabled={!webcamEnable}
+            >
+              Start Interview
+            </Button>
+          </CardFooter>
         </Card>
 
-
-
-        {/* Webcam Section */}
-        <div className="flex flex-col gap-4">
-          <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-            {webcamEnable ? (
-              <Webcam
-                className="w-full h-full object-cover"
-                onUserMedia={() => setwebcamEnable(true)}
-                onUserMediaError={() => setwebcamEnable(false)}
-                mirrored={true}
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center text-gray-400">
-                <WebcamIcon size={45} />
-                <p className="mt-2 text-sm">Camera is disabled</p>
-              </div>
-            )}
-          </div>
-          <Button
-            className="w-full"
-            onClick={() => setwebcamEnable(!webcamEnable)}
-          >
-            {webcamEnable ? 'Disable' : 'Enable'} Webcam
-          </Button>
-        </div>
+        {/* Webcam Setup */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Camera Setup</CardTitle>
+            <CardDescription>Configure your video settings</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+              {webcamEnable ? (
+                <Webcam
+                  className="w-full h-full object-cover"
+                  onUserMedia={() => setwebcamEnable(true)}
+                  onUserMediaError={() => setwebcamEnable(false)}
+                  mirrored={true}
+                />
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                  <Camera className="h-12 w-12 mb-2" />
+                  <p>Camera is disabled</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => setwebcamEnable(!webcamEnable)}
+            >
+              <Camera className="h-4 w-4" />
+              {webcamEnable ? 'Disable' : 'Enable'} Camera
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   )

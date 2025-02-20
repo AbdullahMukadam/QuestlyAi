@@ -13,7 +13,7 @@ const Page = () => {
                    <div className="absolute inset-0">
                        <Image
                            className="object-cover w-full h-full"
-                           src="/womenlaptop.jpg"
+                           src="/woman-laptop-2.avif"
                            alt="Professional at work"
                            layout="fill"
                            priority

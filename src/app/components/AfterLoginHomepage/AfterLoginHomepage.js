@@ -1,4 +1,5 @@
-"use client"
+'use client'
+
 import { Button } from '@/components/ui/button'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,9 +21,10 @@ import { useToast } from '@/hooks/use-toast'
 import { chatSession } from '@/utils/geminiapi'
 import { addQuestions } from '@/app/store/InterviewQuestionSlice'
 import { useRouter } from 'next/navigation'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 import { AddInterviewQuestions, fetchAllInterviewDetails } from '@/app/actions/QuestionsAction'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Loader2, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 function AfterLoginHomepage() {
@@ -36,7 +38,6 @@ function AfterLoginHomepage() {
   const router = useRouter()
   const [loading, setloading] = useState(false)
   const [Interviews, setInterviews] = useState(null)
-  
 
   const submitHandler = async (data) => {
     seterror("")
@@ -64,15 +65,12 @@ function AfterLoginHomepage() {
           dispatch(addQuestions(addinterviewQuestionstoDatabase))
           router.push(`/interview-screen/${uniqueId}`)
         }
-
-
       }
-
     } catch (error) {
       seterror(error.message)
       toast({
         title: "Error",
-        description: "An error occured, please try again" || error.message,
+        description: "An error occurred, please try again" || error.message,
         variant: "destructive"
       })
     }
@@ -89,7 +87,7 @@ function AfterLoginHomepage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "An error occured in fetching all interviews" || error.message,
+        description: "An error occurred in fetching all interviews" || error.message,
         variant: "destructive"
       })
     } finally {
@@ -101,129 +99,146 @@ function AfterLoginHomepage() {
     fetchAllInterviews()
   }, [dispatch])
 
-  if (userData?.role === "candidate") {
+  if (userData?.role !== "candidate") {
     return (
-      <>
-        {isSubmitting && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl flex flex-col items-center gap-4">
-              <div className="flex-col gap-4 w-full flex items-center justify-center">
-                <div className="w-20 h-20 border-4 border-transparent text-blue-400 text-4xl animate-spin flex items-center justify-center border-t-blue-400 rounded-full">
-                  <div className="w-16 h-16 border-4 border-transparent text-red-400 text-2xl animate-spin flex items-center justify-center border-t-red-400 rounded-full"></div>
-                </div>
-              </div>
-              <p className="text-lg font-medium text-gray-600 dark:text-gray-300">Please wait...</p>
-            </div>
-          </div>
-        )}
-
-        <div className='w-full p-3 font-sans'>
-          <h1 className='font-bold text-[20px] text-gray-600 dark:text-white'>Create and Start with your Mockup Interview</h1>
-          <Dialog className="mt-2" open={open} onOpenChange={setopen}>
-            <DialogTrigger>
-              <Button>Add New</Button>
-            </DialogTrigger>
-
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add Details</DialogTitle>
-                <DialogDescription>
-                  Tell us More About your Job Interviewing
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit(submitHandler)}>
-                <div className="grid gap-4 py-4">
-                  <div className="flex flex-col items-start gap-4 text-left">
-                    <Label htmlFor="Jobtype">
-                      Job Role / Job Position
-                    </Label>
-                    <Input id="Jobtype" placeholder="ex developer, writer, etc" className="col-span-3"
-                      {...register("Jobtype", {
-                        required: true
-                      })}
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col items-start gap-4">
-                    <Label htmlFor="Description" className="text-right">
-                      Job Description / Tech Stack (In Short)
-                    </Label>
-                    <Textarea id="Description" placeholder="Ex React, Nodejs, Typescript, Aws, etc" className="col-span-3"
-                      {...register("Description", {
-                        required: true
-                      })}
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col items-start gap-4">
-                    <Label htmlFor="Description" className="text-right">
-                      Experience
-                    </Label>
-                    <Select value={Experience} onValueChange={setExperience} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Experience Level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Less than 1 year">Less than 1 year</SelectItem>
-                        <SelectItem value="3 Years">3 Years</SelectItem>
-                        <SelectItem value="5 years and above">5 years and above</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col items-start gap-2">
-                    <Label htmlFor="questions" className="text-right">
-                      Have your predefined Questions? (Optional)
-                    </Label>
-                    <p className='font-semibold text-sm text-gray-600'>pdf only</p>
-                    <Input id="questions" type="file" className="col-span-3"
-                      {...register("questions")}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="submit" disabled={isSubmitting}>Submit</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-          <div className='w-full mt-9'>
-            <h2 className='font-bold text-xl'>Previous Mock Interviews</h2>
-            {Interviews?.length > 0 ? (
-              Interviews.map((interview, index) => (
-                < Card className="w-full p-2 h-fit md:w-[30%] mt-2" key={index}>
-                  <CardContent className="w-full flex flex-col">
-                    <div className='flex gap-3 items-center'>
-                      <span className="text-sm text-gray-500">Job Type:</span>
-                      <p className="text-lg font-medium capitalize">{interview.jobType}</p>
-                    </div>
-                    <div className='flex gap-3 items-center'>
-                      <span className="text-sm text-gray-500">Job Description:</span>
-                      <p className="text-lg font-medium capitalize">{interview.jobDescription}</p>
-                    </div>
-                    <div className='flex gap-3 items-center'>
-                      <span className="text-sm text-gray-500">Job Experience:</span>
-                      <p className="text-lg font-medium capitalize">{interview.jobExperience}</p>
-                    </div>
-                    <div className='w-full flex justify-end'>
-                      <Link href={`/interview-screen/${interview.id}`}>Start</Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <p className='text-red-500 font-semibold mt-2'>No Interviews Found, Add Some</p>
-            )}
-          </div>
-        </div >
-      </>
-    )
-  } else {
-    return (
-      <div className='w-full p-3'>
-        <h1>Go</h1>
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <h1 className="text-2xl font-semibold text-muted-foreground">Access Restricted</h1>
       </div>
     )
   }
+
+  return (
+    <div className="container mx-auto py-6 space-y-8">
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50">
+          <div className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <p className="text-lg font-medium text-muted-foreground">
+                Generating interview questions...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">Mock Interview Dashboard</h1>
+        <Dialog open={open} onOpenChange={setopen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Interview
+            </Button>
+          </DialogTrigger>
+
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Create New Interview</DialogTitle>
+              <DialogDescription>
+                Set up your mock interview by providing job details below.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="Jobtype">Job Role / Position</Label>
+                  <Input
+                    id="Jobtype"
+                    placeholder="e.g., Frontend Developer, Technical Writer"
+                    {...register("Jobtype", { required: true })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="Description">Job Description / Tech Stack</Label>
+                  <Textarea
+                    id="Description"
+                    placeholder="e.g., React, Node.js, TypeScript, AWS"
+                    {...register("Description", { required: true })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Experience Level</Label>
+                  <Select value={Experience} onValueChange={setExperience} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select experience level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Less than 1 year">Less than 1 year</SelectItem>
+                      <SelectItem value="3 Years">3 Years</SelectItem>
+                      <SelectItem value="5 years and above">5 years and above</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="questions">Custom Questions (Optional)</Label>
+                  <Input
+                    id="questions"
+                    type="file"
+                    accept=".pdf"
+                    {...register("questions")}
+                  />
+                  <p className="text-sm text-muted-foreground">PDF format only</p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Interview'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold tracking-tight">Previous Interviews</h2>
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : Interviews?.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Interviews.map((interview, index) => (
+              <Card key={index} className="transition-shadow hover:shadow-lg">
+                <CardHeader className="border-b bg-muted/50 p-4">
+                  <h3 className="font-semibold capitalize">{interview.jobType}</h3>
+                </CardHeader>
+                <CardContent className="p-4 space-y-2">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Description</p>
+                    <p className="text-sm font-medium capitalize">{interview.jobDescription}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Experience Required</p>
+                    <p className="text-sm font-medium capitalize">{interview.jobExperience}</p>
+                  </div>
+                </CardContent>
+                <CardFooter className="p-4 pt-0">
+                  <Link href={`/interview-screen/${interview.id}`} className="w-full">
+                    <Button variant="secondary" className="w-full">
+                      Start Interview
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground">No interviews found. Create your first mock interview!</p>
+          </Card>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default AfterLoginHomepage
