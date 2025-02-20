@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useEffect, useState } from 'react'
@@ -20,6 +19,7 @@ import { TypingAnimation } from '@/components/magicui/typing-animation'
 import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import useSpeechToText from 'react-hook-speech-to-text'
+import { useToast } from '@/hooks/use-toast'
 
 function InterviewScreen({ id }) {
   const [interviewDetails, setinterviewDetails] = useState(null)
@@ -32,6 +32,8 @@ function InterviewScreen({ id }) {
   const [index, setindex] = useState(0)
   const [startedSpeech, setstartedSpeech] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [userAnswers, setuserAnswers] = useState([])
+  const [singleAns, setsingleAns] = useState("")
   const {
     error,
     interimResult,
@@ -43,6 +45,7 @@ function InterviewScreen({ id }) {
     continuous: true,
     useLegacyResults: false
   });
+  const { toast } = useToast()
 
   useEffect(() => {
     if (!dataFetched.current && id) {
@@ -100,12 +103,69 @@ function InterviewScreen({ id }) {
     handleSpeechSynthesis(questions[newIndex])
   }
 
+  const handleRecord = () => {
+    if (error) {
+      toast({
+        title: "Not Supported",
+        description: "Voice Recording is not supported in your Browser, Please Switch to Chrome Browsers",
+        variant: "destructive"
+      });
+      return; // Add early return to prevent further execution
+    }
+
+    if (isRecording) {
+      stopSpeechToText();
+      //console.log(userAnswers)
+    } else {
+      setsingleAns("")
+      startSpeechToText();
+    }
+  };
+
+  useEffect(() => {
+    //console.log(results)
+    results.map((result) => setsingleAns(result.transcript))
+  }, [results]);
+
+  useEffect(() => {
+    if (!isRecording && singleAns.length >= 10) {
+      saveUserAnswer()
+      //console.log(userAnswers)
+      toast({
+        title:"Success",
+        description:"Your Answer Saved Successfully"
+      })
+    } 
+  }, [singleAns])
+
+  const saveUserAnswer = () => {
+    const obj = {
+      question: questions[index],
+      answer: singleAns
+    }
+
+    //console.log(obj)
+    setuserAnswers(prevAnswers => [...prevAnswers, obj])
+    setsingleAns("")
+  }
+
   // Cleanup speech synthesis when component unmounts
   useEffect(() => {
     return () => {
       speechSynthesis.cancel()
     }
   }, [])
+
+  const handleSubmitToGemini = ()=>{
+    console.log(userAnswers)
+  }
+
+  const handleStartInterviewAgain = ()=>{
+     setstartInterview(false)
+     setuserAnswers([])
+     setsingleAns("")
+     setindex(0)
+  }
 
 
   if (isLoading) {
@@ -212,7 +272,7 @@ function InterviewScreen({ id }) {
                     </Button>
                   )}
 
-                  <Button
+                  {questions.length - 1 === index ? <Button onClick={handleSubmitToGemini} variant="destructive" disabled={userAnswers.length < questions.length}>Submit Answers</Button> : <Button
                     variant="outline"
                     disabled={questions.length - 1 === index}
                     onClick={() => handleNavigation(index + 1)}
@@ -220,15 +280,19 @@ function InterviewScreen({ id }) {
                   >
                     Next
                     <ArrowRight className="h-4 w-4" />
-                  </Button>
+                  </Button>}
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
         <div className='flex items-center justify-between'>
-          <Button onClick={() => setstartInterview(false)} variant="outline">End Interview</Button>
-          <Button>Record Answer</Button>
+          <Button onClick={handleStartInterviewAgain} variant="outline">Start Again</Button>
+          <Button onClick={handleRecord}>
+            {isRecording ?
+              <p className='w-full text-red-500 flex gap-1'> <MicIcon /> Stop Recording</p>
+              : 'Record Answer'}
+          </Button>
         </div>
 
       </div>
