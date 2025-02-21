@@ -150,11 +150,12 @@ function AfterLoginHomepage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="Description">Job Description / Tech Stack</Label>
+                  <Label htmlFor="Description">Job Description / Tech Stack (In Short)</Label>
                   <Textarea
                     id="Description"
                     placeholder="e.g., React, Node.js, TypeScript, AWS"
                     {...register("Description", { required: true })}
+                    maxLength="100"
                   />
                 </div>
                 <div className="space-y-2">

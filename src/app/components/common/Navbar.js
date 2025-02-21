@@ -57,11 +57,11 @@ const Navbar = () => {
             link: "/Pricing",
             show: authStatus
         },
-        {
+        /* {
             item: "Dashboard",
             link: "/dashboard",
             show: authStatus
-        },
+        }, */
     ]
 
     const handleLogout = async () => {

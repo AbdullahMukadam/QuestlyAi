@@ -20,6 +20,9 @@ import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import useSpeechToText from 'react-hook-speech-to-text'
 import { useToast } from '@/hooks/use-toast'
+import { chatSession } from '@/utils/geminiapi'
+import copy from 'copy-to-clipboard'
+
 
 function InterviewScreen({ id }) {
   const [interviewDetails, setinterviewDetails] = useState(null)
@@ -34,6 +37,8 @@ function InterviewScreen({ id }) {
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [userAnswers, setuserAnswers] = useState([])
   const [singleAns, setsingleAns] = useState("")
+  const [loadingForFeedback, setloadingForFeedback] = useState(false)
+  const [userAnsFeedback, setuserAnsFeedback] = useState("")
   const {
     error,
     interimResult,
@@ -130,22 +135,37 @@ function InterviewScreen({ id }) {
   useEffect(() => {
     if (!isRecording && singleAns.length >= 10) {
       saveUserAnswer()
-      //console.log(userAnswers)
+      console.log(userAnswers)
       toast({
-        title:"Success",
-        description:"Your Answer Saved Successfully"
+        title: "Success",
+        description: "Your Answer Saved Successfully"
       })
-    } 
+    }
   }, [singleAns])
 
   const saveUserAnswer = () => {
-    const obj = {
-      question: questions[index],
-      answer: singleAns
-    }
 
-    //console.log(obj)
-    setuserAnswers(prevAnswers => [...prevAnswers, obj])
+    const existingAnswerIndex = userAnswers.findIndex(
+      ans => ans.question === questions[index]
+    );
+
+    setuserAnswers(prev => {
+      if (existingAnswerIndex !== -1) {
+        // Update existing answer
+        const newAnswers = [...prev];
+        newAnswers[existingAnswerIndex] = {
+          question: questions[index],
+          answer: singleAns
+        };
+        return newAnswers;
+      } else {
+        // Add new answer
+        return [...prev, {
+          question: questions[index],
+          answer: singleAns
+        }];
+      }
+    });
     setsingleAns("")
   }
 
@@ -156,15 +176,34 @@ function InterviewScreen({ id }) {
     }
   }, [])
 
-  const handleSubmitToGemini = ()=>{
-    console.log(userAnswers)
+  const handleSubmitToGemini = async () => {
+    setloadingForFeedback(true)
+    const FeedbackPrompt = `Data: ${JSON.stringify(userAnswers)}
+Depending upon the questions and user answers, please give us a feedback as a area of improvement in just 3 to 5 lines.`;
+
+    const result = await chatSession.sendMessage(FeedbackPrompt)
+    const filteredResponse = result.response.text()
+    console.log(filteredResponse)
+    setuserAnsFeedback(filteredResponse)
+    setloadingForFeedback(false)
+    //console.log(userAnswers)
   }
 
-  const handleStartInterviewAgain = ()=>{
-     setstartInterview(false)
-     setuserAnswers([])
-     setsingleAns("")
-     setindex(0)
+  const handleStartInterviewAgain = () => {
+    setstartInterview(false)
+    setuserAnswers([])
+    setsingleAns("")
+    setindex(0)
+    setuserAnsFeedback("")
+  }
+
+  const handleCopyFeedback = () => {
+    copy(userAnsFeedback)
+    toast({
+      title: "Sucess",
+      description: "Feedback Copied to Clipboard"
+    })
+
   }
 
 
@@ -184,117 +223,163 @@ function InterviewScreen({ id }) {
 
 
     return (
-      <div className="container mx-auto max-w-4xl py-8 space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Question {index + 1} of {questions.length}</span>
-              <Progress value={progress} className="w-1/3" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Webcam Feed */}
-              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                {webcamEnable ? (
-                  <>
-                    <Webcam
-                      className="w-full h-full object-cover relative"
-                      mirrored={true}
-                    />
-                  </>
-
-                ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-                    <Camera className="h-12 w-12 mb-2" />
-                    <p>Camera is disabled</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Question Display */}
-              <div className="space-y-4">
-                <div className="min-h-[200px] p-4 rounded-lg bg-muted/50 relative">
-                  {startedSpeech ? (
-                    <>
-                      <TypingAnimation className="text-lg">
-                        {questions[index]}
-                      </TypingAnimation>
-                      {isSpeaking && (
-                        <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                          <Volume2 className="h-5 w-5 text-primary animate-pulse" />
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={stopSpeech}
-                            className="h-8 px-2"
-                          >
-                            <StopCircle className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="h-full flex items-center justify-center">
-                      <Button
-                        onClick={() => handleSpeechSynthesis(questions[index])}
-                        className="gap-2"
-                      >
-                        <MicIcon className="h-4 w-4" />
-                        Start Question
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Question Controls */}
-                <div className="flex justify-between items-center">
-                  <Button
-                    variant="outline"
-                    disabled={index === 0}
-                    onClick={() => handleNavigation(index - 1)}
-                    className="gap-2"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-
-                  {/* Replay Button */}
-                  {startedSpeech && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleSpeechSynthesis(questions[index])}
-                      disabled={isSpeaking}
-                      className="gap-2"
-                    >
-                      <Volume2 className="h-4 w-4" />
-                      Replay
+      <div className="min-h-screen bg-gradient-to-b from-background to-background/95 p-6">
+        <div className="container mx-auto max-w-5xl space-y-8">
+          {/* Feedback Modal */}
+          {userAnsFeedback && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-card w-full max-w-lg rounded-xl border shadow-lg">
+                <div className="p-6 space-y-4">
+                  <h2 className="text-2xl font-semibold text-center">Interview Feedback</h2>
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    {userAnsFeedback}
+                  </p>
+                  <div className="flex items-center justify-end gap-3 pt-4">
+                    <Button variant="outline" onClick={handleCopyFeedback}>
+                      Copy Feedback
                     </Button>
-                  )}
-
-                  {questions.length - 1 === index ? <Button onClick={handleSubmitToGemini} variant="destructive" disabled={userAnswers.length < questions.length}>Submit Answers</Button> : <Button
-                    variant="outline"
-                    disabled={questions.length - 1 === index}
-                    onClick={() => handleNavigation(index + 1)}
-                    className="gap-2"
-                  >
-                    Next
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>}
+                    <Button variant="destructive" onClick={handleStartInterviewAgain}>
+                      End Interview
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        <div className='flex items-center justify-between'>
-          <Button onClick={handleStartInterviewAgain} variant="outline">Start Again</Button>
-          <Button onClick={handleRecord}>
-            {isRecording ?
-              <p className='w-full text-red-500 flex gap-1'> <MicIcon /> Stop Recording</p>
-              : 'Record Answer'}
-          </Button>
-        </div>
+          )}
 
+          {/* Main Interview Card */}
+          <Card className="border-2">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between mb-4">
+                <CardTitle className="text-xl">
+                  Question {index + 1} of {questions.length}
+                </CardTitle>
+                <Progress value={progress} className="w-1/3 h-2" />
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-8">
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Webcam Section */}
+                <div className="space-y-4">
+                  <div className="aspect-video bg-muted rounded-xl overflow-hidden shadow-inner">
+                    {webcamEnable ? (
+                      <Webcam
+                        className="w-full h-full object-cover"
+                        mirrored={true}
+                      />
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                        <Camera className="h-12 w-12 mb-3 opacity-50" />
+                        <p className="text-sm">Camera is disabled</p>
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handleRecord}
+                    className="w-full"
+                    variant={isRecording ? "destructive" : "default"}
+                  >
+                    <MicIcon className="mr-2 h-4 w-4" />
+                    {isRecording ? 'Stop Recording' : 'Record Answer'}
+                  </Button>
+                </div>
+
+                {/* Question Section */}
+                <div className="space-y-6">
+                  <div className="min-h-[200px] p-6 rounded-xl bg-muted/30 border shadow-sm relative">
+                    {startedSpeech ? (
+                      <div className="space-y-4">
+                        <TypingAnimation className="text-lg" duration={70}>
+                          {questions[index]}
+                        </TypingAnimation>
+                        {isSpeaking && (
+                          <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                            <Volume2 className="h-5 w-5 text-primary animate-pulse" />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={stopSpeech}
+                              className="h-8"
+                            >
+                              <StopCircle className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="h-full flex items-center justify-center">
+                        <Button
+                          onClick={() => handleSpeechSynthesis(questions[index])}
+                          variant="secondary"
+                          className="gap-2"
+                        >
+                          <Volume2 className="h-4 w-4" />
+                          Start Question
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Navigation Controls */}
+                  <div className="flex items-center justify-between gap-4 pt-2">
+                    <Button
+                      variant="outline"
+                      disabled={index === 0}
+                      onClick={() => handleNavigation(index - 1)}
+                      className="gap-2"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+
+                    {startedSpeech && (
+                      <Button
+                        variant="secondary"
+                        onClick={() => handleSpeechSynthesis(questions[index])}
+                        disabled={isSpeaking}
+                        size="sm"
+                      >
+                        <Volume2 className="h-4 w-4 mr-2" />
+                        Replay
+                      </Button>
+                    )}
+
+                    {questions.length - 1 === index ? (
+                      <Button
+                        onClick={handleSubmitToGemini}
+                        variant="default"
+                        disabled={userAnswers.length < questions.length}
+                        className="gap-2"
+                      >
+                        {loadingForFeedback ? "Processing..." : "Submit Answers"}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        onClick={() => handleNavigation(index + 1)}
+                        className="gap-2"
+                      >
+                        Next
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button
+              onClick={handleStartInterviewAgain}
+              variant="outline"
+              className="hover:bg-destructive/10"
+            >
+              Reset Interview
+            </Button>
+          </div>
+        </div>
       </div>
     )
   }
