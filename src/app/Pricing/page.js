@@ -1,10 +1,10 @@
 import React from 'react'
-import Pricingcomponent from '../components/pricing/pricingcomponent'
+import SubscriptionPlans from '../components/Subscription/SubscriptionPlans'
 
 function page() {
   return (
-    <div className='w-full p-3'>
-        <Pricingcomponent />
+    <div className="container mx-auto py-12">
+      <SubscriptionPlans />
     </div>
   )
 }

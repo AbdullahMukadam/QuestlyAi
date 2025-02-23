@@ -20,19 +20,25 @@ const ProfileSchema = new mongoose.Schema({
     },
     memberShipType: {
         type: String,
-        default: "free"
+        enum: ['free', 'Basic Monthly', 'Premium Monthly'],
+        default: 'free'
     },
     memberShipStartDate: {
-        type: String,
-        default: () => new Date().toISOString()
+        type: Date,
+        default: null
     },
     memberShipEndDate: {
+        type: Date,
+        default: null
+    },
+    subscriptionId: {
         type: String,
-        default: () => {
-            const date = new Date();
-            date.setFullYear(date.getFullYear() + 1);
-            return date.toISOString();
-        }
+        default: null
+    },
+    subscriptionStatus: {
+        type: String,
+        enum: ['active', 'inactive', 'cancelled'],
+        default: 'inactive'
     },
     recruiterDetails: {
         required: function () {

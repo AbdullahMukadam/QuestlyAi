@@ -22,10 +22,11 @@ import { chatSession } from '@/utils/geminiapi'
 import { addQuestions } from '@/app/store/InterviewQuestionSlice'
 import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
-import { AddInterviewQuestions, fetchAllInterviewDetails } from '@/app/actions/QuestionsAction'
+import { AddInterviewQuestions, deleteInterview, fetchAllInterviewDetails } from '@/app/actions/QuestionsAction'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Loader2, Plus } from 'lucide-react'
 import Link from 'next/link'
+import { AlertDialogDemo } from '@/hooks/AlertDialog'
 
 function AfterLoginHomepage() {
   const userData = useSelector((state) => state.userData.userData)
@@ -38,6 +39,9 @@ function AfterLoginHomepage() {
   const router = useRouter()
   const [loading, setloading] = useState(false)
   const [Interviews, setInterviews] = useState(null)
+  const [deleteStatus, setdeleteStatus] = useState(false)
+  const [alertDialogOpen, setalertDialogOpen] = useState(false)
+  const [deleteInterviewId, setdeleteInterviewId] = useState(null)
 
   const submitHandler = async (data) => {
     seterror("")
@@ -50,7 +54,7 @@ function AfterLoginHomepage() {
         const uniqueId = uuidv4()
         const questionData = {
           id: uniqueId,
-          userId: userData.userId,
+          userId: userData?.userId,
           jobType: data.Jobtype,
           jobDescription: data.Description,
           jobExperience: Experience,
@@ -95,9 +99,39 @@ function AfterLoginHomepage() {
     }
   }
 
+
   useEffect(() => {
     fetchAllInterviews()
   }, [dispatch])
+
+  const handleDelete = (id) => {
+    setalertDialogOpen(true)
+    setdeleteInterviewId(id)
+  }
+
+  const deletetheInterview = async () => {
+    try {
+      setdeleteStatus(true)
+      const result = await deleteInterview(deleteInterviewId, "/")
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Interview Deleted Successfully"
+        })
+        fetchAllInterviews()
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Unable to Delete the Interview, Please Try Again",
+        variant: "destructive"
+      })
+    } finally {
+      setdeleteStatus(false)
+    }
+  }
+
+  console.log(userData)
 
   if (userData?.role !== "candidate") {
     return (
@@ -122,11 +156,16 @@ function AfterLoginHomepage() {
         </div>
       )}
 
+
+      <AlertDialogDemo alertDialogOpen={alertDialogOpen} setalertDialogOpen={setalertDialogOpen} deletetheInterview={deletetheInterview} setdeleteInterviewId={setdeleteInterviewId} deleteStatus={deleteStatus} />
+
+
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Mock Interview Dashboard</h1>
         <Dialog open={open} onOpenChange={setopen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button disabled={(userData?.memberShipType === "free" && Interviews?.length >= 2) ||
+              (userData?.memberShipType === "Basic Monthly" && Interviews?.length >= 15)}>
               <Plus className="mr-2 h-4 w-4" />
               New Interview
             </Button>
@@ -200,6 +239,12 @@ function AfterLoginHomepage() {
       </div>
 
       <div className="space-y-4">
+        {(userData?.memberShipType === "free" && Interviews?.length === 2) ||
+          (userData?.memberShipType === "Basic Monthly" && Interviews?.length === 15) ? (
+          <p className='text-red-500'>
+            Please upgrade your membership to add more interviews. You can still use your previous interviews.
+          </p>
+        ) : null}
         <h2 className="text-2xl font-semibold tracking-tight">Previous Interviews</h2>
         {loading ? (
           <div className="flex justify-center py-8">
@@ -222,7 +267,10 @@ function AfterLoginHomepage() {
                     <p className="text-sm font-medium capitalize">{interview.jobExperience}</p>
                   </div>
                 </CardContent>
-                <CardFooter className="p-4 pt-0">
+                <CardFooter className="p-4 pt-0 flex items-center gap-3">
+                  <Button variant="outline" className="w-full" disabled={userData?.memberShipType !== "Premium Monthly"} onClick={() => handleDelete(interview.id)}>
+                    Delete Interview
+                  </Button>
                   <Link href={`/interview-screen/${interview.id}`} className="w-full">
                     <Button variant="secondary" className="w-full">
                       Start Interview
@@ -233,7 +281,7 @@ function AfterLoginHomepage() {
             ))}
           </div>
         ) : (
-          <Card className="p-8 text-center">
+          <Card className="p-8 text-center w-fit">
             <p className="text-muted-foreground">No interviews found. Create your first mock interview!</p>
           </Card>
         )}
