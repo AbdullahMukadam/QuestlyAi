@@ -72,6 +72,10 @@ const Navbar = () => {
             dispatch(removeQuestions())
             localStorage.removeItem("authStatus")
             setauthStatus(false)
+            toast({
+                title: "Success",
+                description: "Succesfully Signout"
+            })
             router.push("/")
         } catch (error) {
             console.error("Logout error:", error)

@@ -1,9 +1,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import CommonLayout from "./common-layout";
 import { Suspense } from "react";
 import SkeletonLoader from "./components/landing-page/loader";
 import { ThemeProvider } from "./components/theme-provider";
+import Script from "next/script";
+import CommonLayout from "./common-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +24,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -39,9 +46,6 @@ export default function RootLayout({ children }) {
             </main>
           </div>
         </ThemeProvider>
-
-
-
       </body>
     </html>
   );

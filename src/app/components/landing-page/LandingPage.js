@@ -12,6 +12,7 @@ import { Marquee } from '@/components/magicui/marquee';
 import Footer from '../common/Footer';
 import { RetroGrid } from '@/components/magicui/retro-grid';
 import { InteractiveGridPattern } from '@/components/magicui/interactive-grid-pattern';
+import { SparklesText } from '@/components/magicui/sparkles-text';
 
 const ReviewCard = ({ img, name, username, body }) => (
   <figure className="relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
@@ -49,19 +50,19 @@ function LandingPage() {
     {
       name: "Jack",
       username: "@jack",
-      body: "I've never seen anything like this before. It's amazing. I love it.",
+      body: "Questly AI helped me ace my interviews! The mock interviews were so realistic and the feedback was incredibly detailed.",
       img: "https://avatar.vercel.sh/jack",
     },
     {
       name: "Jill",
       username: "@jill",
-      body: "I don't know what to say. I'm speechless. This is amazing.",
+      body: "I was nervous about my interviews, but Questly AI gave me the confidence I needed. The AI feedback was spot on!",
       img: "https://avatar.vercel.sh/jill",
     },
     {
       name: "Alex",
       username: "@Alex",
-      body: "I don't know what to say. I'm speechless. This is amazing.",
+      body: "The AI-powered mock interviews were a game-changer for me. I landed my dream job thanks to Questly AI!",
       img: "https://avatar.vercel.sh/jill",
     },
     // ... add more reviews as needed
@@ -70,25 +71,25 @@ function LandingPage() {
   const data = [
     {
       value: '100K',
-      label: 'Users Active',
+      label: 'Candidates Trained',
       icon: <LucideUser size={24} />,
       backgroundColor: 'bg-gray-50 dark:bg-black',
     },
     {
       value: 'Upto 40%',
-      label: 'Reduce Hiring Time',
+      label: 'Improvement in Confidence',
       icon: <LucideLink2 size={24} />,
       backgroundColor: 'bg-gray-50 dark:bg-black',
     },
     {
       value: '30%',
-      label: 'Interview Accuracy',
+      label: 'Interview Success Rate',
       icon: <LucideBox size={24} />,
       backgroundColor: 'bg-gray-50 dark:bg-black',
     },
     {
       value: '20%',
-      label: 'Employee Rates',
+      label: 'Faster Job Placement',
       icon: <LucideTreeDeciduous size={24} />,
       backgroundColor: 'bg-gray-50 dark:bg-black',
     },
@@ -113,13 +114,12 @@ function LandingPage() {
       <section className="w-full absolute top-2 md:top-[0%] lg:top-[4%] pt-6 md:pt-14 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-20 px-4">
         <div className="w-full text-center md:text-left">
           <h1 className="text-2xl font-bold md:text-5xl lg:text-6xl">
-            All-in-One AI <span className="block md:inline">Interviewer Platform</span>
+            AI-Powered Mock Interviewer <span className="block md:inline"><SparklesText text={"for your Success"} sparklesCount={6} /></span>
           </h1>
         </div>
         <div className="w-full text-center md:text-left md:w-[40%]">
           <p className="text-gray-600 text-sm md:text-base font-bold">
-            Our Platform Combines advanced Artificial Technologies with Intuitive features to
-            streamline your talent selection process, saving your time, effort, and resources.
+            Questly AI is your personal AI-powered mock interviewer, designed to help you prepare for real-world interviews. With advanced AI technology, we provide realistic mock interviews, detailed feedback, and actionable insights to boost your confidence and performance.
           </p>
           <section className="w-full flex items-center gap-3 justify-center mt-4 md:justify-start">
             <Button className="px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 font-medium transition-colors duration-200">
@@ -147,11 +147,9 @@ function LandingPage() {
       {/* Features Section */}
       <section className="w-full mt-8 px-4">
         <div className="w-full text-center">
-          <h2 className="text-2xl font-bold md:text-4xl lg:text-5xl">Transform Hiring Through Innovation</h2>
+          <h2 className="text-2xl font-bold md:text-4xl lg:text-5xl">Transform Your Interview Skills with AI</h2>
           <p className="text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4 max-w-2xl mx-auto">
-            At QuestlyAI, we're passionate about redefining the hiring process for the modern era. We
-            understand that traditional methods can be time-consuming and hinder the ability to
-            truly identify the best talent.
+            Questly AI is designed to help you excel in interviews by providing realistic mock interviews, personalized feedback, and actionable insights. Whether you're preparing for technical, behavioral, or situational interviews, Questly AI has you covered.
           </p>
         </div>
 
@@ -178,18 +176,18 @@ function LandingPage() {
           {[
             {
               icon: <LockKeyhole size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
-              title: "Unbiased Insights",
-              description: "Advanced Algorithms Assess skills providing you with an accurate representation of each candidate.",
+              title: "Realistic Mock Interviews",
+              description: "Experience interviews that feel just like the real thing, with AI-powered simulations tailored to your target role.",
             },
             {
               icon: <BookmarkCheck size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
-              title: "Efficient Evaluation",
-              description: "Save Time By identifying top candidates quickly, automated analysis of technical skills, problem solving abilities and more.",
+              title: "Personalized Feedback",
+              description: "Get detailed feedback on your performance, including areas for improvement and actionable tips to succeed.",
             },
             {
               icon: <Database size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
-              title: "Data-Driven Decisions",
-              description: "Comprehensive view of candidate performance across interview enabling you to choose best candidates.",
+              title: "AI-Driven Insights",
+              description: "Leverage AI to analyze your strengths and weaknesses, helping you focus on what matters most.",
             },
           ].map((item, index) => (
             <div key={index} className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-black border border-gray-200">
@@ -205,9 +203,9 @@ function LandingPage() {
         {/* Stats Section */}
         <div className="w-full mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <section className="w-full md:w-1/2 text-center md:text-left">
-            <h3 className="text-2xl font-bold md:text-4xl">Why Choose QuestlyAI?</h3>
+            <h3 className="text-2xl font-bold md:text-4xl">Why Choose Questly AI?</h3>
             <p className="text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4">
-              Our Platform has helped reduce the hiring time up to 40%, increased interview accuracy up to 30% and brought a 20% improvement in employee retention rate.
+              Questly AI has helped over 100,000 candidates improve their interview skills, with a 40% boost in confidence, a 30% increase in interview success rates, and 20% faster job placements.
             </p>
             <Button className="mt-4 px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700">
               Learn More <GoArrowUpRight className="inline ml-2 text-white" />
@@ -242,10 +240,10 @@ function LandingPage() {
       <section className="w-full py-16 px-4">
         <div className="relative max-w-7xl mx-auto h-[500px] flex flex-col items-center justify-center gap-6 overflow-hidden rounded-xl border bg-background shadow-lg">
           <h3 className="text-2xl md:text-4xl font-bold text-center leading-tight">
-            More than 1000 Users <br /> Testimony this Product
+            Trusted by Over 100,000 Candidates
           </h3>
           <p className="text-gray-600 text-base md:text-lg font-medium text-center max-w-2xl">
-            Let our users tell you how their opinion about using QuestlyAI as their partner.
+            Hear from our users about how Questly AI helped them land their dream jobs.
           </p>
           <Marquee pauseOnHover className="[--duration:20s]">
             {reviews.map((review) => (
@@ -266,10 +264,10 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 py-16 md:h-[450px] flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="w-full text-center md:text-left">
             <h3 className="text-2xl md:text-4xl font-bold leading-tight mb-4 text-emerald-500 dark:text-white">
-              Ready to Revolutionize <br /> your Hiring?
+              Ready to Ace Your Interviews?
             </h3>
             <p className="text-gray-600 text-base md:text-lg mb-6 hidden md:block dark:text-gray-400">
-              Let our users tell you how their opinion about using QuestlyAI as their partner.
+              Join thousands of candidates who have transformed their interview skills with Questly AI.
             </p>
             <div className="flex flex-col md:flex-row items-center gap-4">
               <Button className="px-6 py-2.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">

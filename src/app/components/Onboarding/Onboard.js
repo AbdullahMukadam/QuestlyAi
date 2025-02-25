@@ -24,11 +24,13 @@ export default function Onboard() {
     const { signOut } = useClerk()
     const dispatch = useDispatch()
     const router = useRouter()
+    const [loading, setloading] = useState(true)
     const {
         handleSubmit: candidateHandleSubmit,
         register: candidateRegister,
         setValue: setCandidateValue,
-        formState: { isSubmitting }
+        formState: { isSubmitting },
+        getValues
     } = useForm({
         defaultValues: {
             email: "",
@@ -36,6 +38,7 @@ export default function Onboard() {
             skills: ""
         }
     })
+    let skills;
 
     const {
         handleSubmit: recruiterHandleSubmit,
@@ -64,6 +67,8 @@ export default function Onboard() {
                 setCandidateValue("username", user.username);
                 setRecruiterValue("username", user.username);
             }
+            setloading(false)
+            skills = getValues("skills")
         }
     }, [user, setCandidateValue, setRecruiterValue]);
 
@@ -105,10 +110,12 @@ export default function Onboard() {
             await signOut()
             dispatch(logout())
             dispatch(removeData())
+            dispatch(removeQuestions())
+            localStorage.removeItem("authStatus")
 
             toast({
                 title: "Success",
-                description: "Succesfully SignOut"
+                description: "Succesfully Signout"
             })
             router.push("/")
         } catch (error) {
@@ -117,6 +124,14 @@ export default function Onboard() {
                 description: "An error Occured"
             })
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
     }
 
     return (
@@ -139,7 +154,7 @@ export default function Onboard() {
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectItem value="candidate">Candidate</SelectItem>
-                                    <SelectItem value="recruiter">Recruiter</SelectItem>
+                                    <SelectItem value="recruiter" disabled>Recruiter</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
@@ -209,7 +224,7 @@ export default function Onboard() {
                                     {...recruiterRegister("companyRole", { required: true })}
                                 />
                             </div>
-                            <Button type="submit" className="w-full">Complete Profile</Button>
+                            <Button type="submit" className="w-full" >Complete Profile</Button>
                         </form>
                     )}
                 </CardContent>

@@ -1,15 +1,16 @@
 "use client"
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { createSubscription, verifySubscription } from '@/app/actions/subscriptionActions';
+import { createSubscription, verifySubscription, CheckSubscriptionStatus } from '@/app/actions/subscriptionActions';
 import { fetchUserDetails } from '@/app/actions/userActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from '@clerk/nextjs';
 import { addData, removeData } from '@/app/store/UserDataSlice';
+import { CancelSubscriptionComponent } from './CancelSubscription';
 
 const plans = [
     {
@@ -43,35 +44,65 @@ export default function SubscriptionPlans() {
     const [userInfo, setUserInfo] = useState(null);
     const { userId } = useAuth();
     const [selectedPlan, setSelectedPlan] = useState(null);
-    const dispatch = useDispatch()
+    const [isLoading, setIsLoading] = useState(true);
+    const dispatch = useDispatch();
 
-    useEffect(() => {
-        fetchUserData();
-    }, [userId]);
-
-    const fetchUserData = async () => {
+    // Memoize fetchUserData to prevent infinite loops
+    const fetchUserData = useCallback(async () => {
         if (userId) {
-            const data = await fetchUserDetails(userId);
-            if (data) {
-                setUserInfo(data);
+            try {
+                const data = await fetchUserDetails(userId);
+                if (data) {
+                    setUserInfo(data);
+                    dispatch(removeData());
+                    dispatch(addData(data));
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            } finally {
+                setIsLoading(false);
             }
         }
-    };
+    }, [userId, dispatch]);
 
+    // Memoize checkSubscriptionStatus
+    const checkSubscriptionStatus = useCallback(async () => {
+        if (userId && userInfo?.subscriptionId) {
+            const status = await CheckSubscriptionStatus();
+            if (status.success && !status.isActive) {
+                await fetchUserData();
+                toast({
+                    title: "Subscription Status",
+                    description: status.message,
+                    variant: "default"
+                });
+            }
+        }
+    }, [userId, userInfo?.subscriptionId, toast, fetchUserData]);
+
+    // Initial data fetch
     useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.async = true;
-        document.body.appendChild(script);
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
+        fetchUserData();
+    }, [fetchUserData]);
 
-    const handleSubscription = async (planId, amount, planname) => {
+    // Separate useEffect for subscription status check
+    useEffect(() => {
+        if (userInfo?.subscriptionId) {
+            // Initial check
+            checkSubscriptionStatus();
+
+            // Set up interval
+            const interval = setInterval(checkSubscriptionStatus, 300000); // 5 minutes
+
+            // Cleanup
+            return () => clearInterval(interval);
+        }
+    }, [userInfo?.subscriptionId, checkSubscriptionStatus]);
+
+    const handleSubscription = async (planId, amount, planName) => {
         setSelectedPlan(planId);
         try {
-            const result = await createSubscription(planId, planname);
+            const result = await createSubscription(planId, planName);
             if (!result.success) {
                 throw new Error(result.error);
             }
@@ -79,8 +110,13 @@ export default function SubscriptionPlans() {
             const options = {
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 subscription_id: result.subscription.id,
-                name: "QuestlyAi",
-                description: "Monthly Subscription",
+                name: "QuestlyAI",
+                description: `${planName} Subscription`,
+                image: "/logo-cropped.svg", // Add your logo URL
+                currency: "INR",
+                prefill: {
+                    email: userInfo?.email,
+                },
                 handler: async function (response) {
                     try {
                         if (!response.razorpay_payment_id ||
@@ -96,31 +132,24 @@ export default function SubscriptionPlans() {
                         );
 
                         if (verificationResult.success) {
-
-                            const updatedUserData = await fetchUserDetails(userId);
-
-                            if (updatedUserData) {
-                                setUserInfo(updatedUserData);
-
-                                dispatch(removeData());
-                                dispatch(addData(updatedUserData));
-
-                                toast({
-                                    title: "Success",
-                                    description: "Subscription activated successfully!",
-                                });
-                            }
+                            await fetchUserData();
+                            toast({
+                                title: "Success",
+                                description: "Subscription activated successfully!",
+                            });
                         } else {
                             throw new Error(verificationResult.error || "Verification failed");
                         }
                     } catch (error) {
+                        console.error("Payment verification error:", error);
                         toast({
                             title: "Error",
-                            description: error.message,
+                            description: error.message.includes('timeout')
+                                ? "The request timed out. Please check your subscription status in a few minutes or contact support."
+                                : error.message,
                             variant: "destructive"
                         });
                     }
-                    setSelectedPlan(null);
                 },
                 modal: {
                     ondismiss: function () {
@@ -129,20 +158,40 @@ export default function SubscriptionPlans() {
                             title: "Info",
                             description: "Payment cancelled",
                         });
-                    }
-                },
-                prefill: {
-                    name: "User's Name",
-                    email: "user@example.com",
-                    contact: "9999999999"
+                    },
+                    confirm_close: true,
+                    escape: true
                 },
                 theme: {
                     color: "#10B981"
+                },
+                notify: {
+                    sms: true,
+                    email: true
                 }
             };
 
-            const paymentObject = new window.Razorpay(options);
-            paymentObject.open();
+            // Add error retry logic
+            let retryCount = 0;
+            const maxRetries = 3;
+
+            while (retryCount < maxRetries) {
+                try {
+                    if (typeof window.Razorpay === 'undefined') {
+                        throw new Error("Razorpay SDK not loaded");
+                    }
+                    const paymentObject = new window.Razorpay(options);
+                    paymentObject.open();
+                    break;
+                } catch (error) {
+                    retryCount++;
+                    if (retryCount === maxRetries) {
+                        throw error;
+                    }
+                    // Wait before retrying
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
 
         } catch (error) {
             setSelectedPlan(null);
@@ -154,19 +203,64 @@ export default function SubscriptionPlans() {
         }
     };
 
-    if (!userInfo) {
+    if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <div className="relative w-20 h-20">
-                    <div className="absolute inset-0 border-4 border-t-emerald-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-                    <div className="absolute inset-2 border-4 border-t-emerald-300 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-                </div>
+            <div className="flex justify-center items-center min-h-[400px]">
+                <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="space-y-8">
+            {userInfo?.subscriptionStatus === 'created' && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                    <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
+                        <AlertCircle className="w-5 h-5" />
+                        <p>Your subscription payment is pending. Please complete the payment to access premium features.</p>
+                    </div>
+                </div>
+            )}
+
+            {userInfo?.subscriptionStatus === 'active' && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h3 className="text-lg font-semibold">Current Subscription</h3>
+                            <p className="text-gray-600 dark:text-gray-400">
+                                {userInfo.memberShipType} - Active until {new Date(userInfo.memberShipEndDate).toLocaleDateString()}
+                            </p>
+                        </div>
+                        <CancelSubscriptionComponent
+                            subscriptionId={userInfo.subscriptionId}
+                            userId={userId}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {userInfo?.subscriptionStatus === 'cancelled' && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                    <div className="flex items-center flex-col gap-2 text-yellow-600 dark:text-yellow-400">
+                        <AlertCircle className="w-5 h-5" />
+                        <p>Your subscription has been cancelled but remains active until {new Date(userInfo.memberShipEndDate).toLocaleDateString()}</p>
+                        <div>
+                            <p>Note: If you want to purchase Another subscriptions you can purchase it but please complete the payment or otherwise your previous subscription validity will also end.</p>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
+            {userInfo?.subscriptionStatus === 'expired' && (
+                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                        <AlertCircle className="w-5 h-5" />
+                        <p>Your subscription has expired. Subscribe again to access premium features.</p>
+                    </div>
+                </div>
+            )}
+
             <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Choose Your Plan</h2>
                 <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">

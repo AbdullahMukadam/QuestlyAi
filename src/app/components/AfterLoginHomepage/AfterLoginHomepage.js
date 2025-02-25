@@ -89,11 +89,11 @@ function AfterLoginHomepage() {
         setInterviews(filteredInterviews)
       }
     } catch (error) {
-      toast({
+     /*  toast({
         title: "Error",
         description: "An error occurred in fetching all interviews" || error.message,
         variant: "destructive"
-      })
+      }) */
     } finally {
       setloading(false)
     }
@@ -131,12 +131,12 @@ function AfterLoginHomepage() {
     }
   }
 
-  console.log(userData)
+  //console.log(userData)
 
   if (userData?.role !== "candidate") {
     return (
-      <div className="flex items-center justify-center min-h-[80vh]">
-        <h1 className="text-2xl font-semibold text-muted-foreground">Access Restricted</h1>
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
   }
@@ -211,11 +211,13 @@ function AfterLoginHomepage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
+                  <p className='text-red-500'>Custom questions are under development</p>
                   <Label htmlFor="questions">Custom Questions (Optional)</Label>
                   <Input
                     id="questions"
                     type="file"
                     accept=".pdf"
+                    disabled
                     {...register("questions")}
                   />
                   <p className="text-sm text-muted-foreground">PDF format only</p>

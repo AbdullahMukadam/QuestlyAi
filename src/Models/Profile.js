@@ -37,8 +37,12 @@ const ProfileSchema = new mongoose.Schema({
     },
     subscriptionStatus: {
         type: String,
-        enum: ['active', 'inactive', 'cancelled'],
+        enum: ['active', 'inactive', 'cancelled', 'expired', 'created'],
         default: 'inactive'
+    },
+    effectiveCancellationDate: {
+        type: Date,
+        default: null
     },
     recruiterDetails: {
         required: function () {
