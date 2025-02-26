@@ -376,7 +376,7 @@ function InterviewScreen({ id }) {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-1 md:p-6">
       {isLoading ? (
         <div className="flex min-h-[80vh] items-center justify-center">
           <div className="flex flex-col items-center gap-4">
