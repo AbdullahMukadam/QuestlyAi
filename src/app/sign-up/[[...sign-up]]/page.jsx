@@ -26,7 +26,7 @@ const Page = () => {
                    {/* Content */}
                    <div className="relative z-10 w-full max-w-xl">
                        <h3 className="text-4xl font-bold text-white leading-tight">
-                           Join 35k+ web professionals & 
+                           Join web professionals & 
                            <br />
                            practice your sessions
                        </h3>
@@ -36,8 +36,8 @@ const Page = () => {
                            {[
                                "Free to try",
                                "AI Support",
-                               "Save Interview Locally",
-                               "Invite other Members",
+                               "Save Interview",
+                               "AI Feedback",
                            ].map((feature, index) => (
                                <div key={index} className="flex items-center space-x-3">
                                    <div className="flex-shrink-0">

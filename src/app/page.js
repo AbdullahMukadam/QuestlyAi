@@ -6,7 +6,7 @@ import { auth } from '@clerk/nextjs/server';
 async function page() {
     try {
         const { userId } = await auth();
-        
+
         let userDetails = null;
         if (userId) {
             userDetails = await fetchUserDetails(userId);
@@ -14,16 +14,23 @@ async function page() {
 
         return (
             <div className="w-full h-full px-4 md:px-8">
-                <HomePageContainer 
-                    userId={userId} 
-                    userDetails={userDetails} 
+                <HomePageContainer
+                    userId={userId}
+                    userDetails={userDetails}
                 />
             </div>
         );
     } catch (error) {
         console.error("Error in page component:", error);
         return (
+
             <div className="w-full h-full px-4 md:px-8">
+                <link
+                    rel="icon"
+                    href="/icon.png"
+                    type="image/png"
+                   
+                />
                 <HomePageContainer userId={null} userDetails={null} />
             </div>
         );

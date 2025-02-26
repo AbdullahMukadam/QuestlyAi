@@ -385,7 +385,7 @@ function InterviewScreen({ id }) {
           </div>
         </div>
       ) : !startInterview ? (
-        <div className="container mx-auto max-w-4xl p-6 space-y-6">
+        <div className="container mx-auto max-w-4xl p-3 md:p-6 space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">Interview Preparation</h1>
             <p className="text-muted-foreground">Get ready for your mock interview session</p>

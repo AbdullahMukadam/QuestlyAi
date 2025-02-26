@@ -6,13 +6,15 @@ import Script from 'next/script';
 import SkeletonLoader from './loader';
 import Image from 'next/image';
 import HeroVideoDialog from '@/components/ui/hero-video-dialog';
-import { BookmarkCheck, CircleUserRound, Database, LockKeyhole } from 'lucide-react';
+import { BookmarkCheck, Bot, BotMessageSquare, CircleUserRound, Database, LockKeyhole, MessageCircle } from 'lucide-react';
 import { LucideUser, LucideLink2, LucideBox, LucideTreeDeciduous } from 'lucide-react';
 import { Marquee } from '@/components/magicui/marquee';
 import Footer from '../common/Footer';
 import { RetroGrid } from '@/components/magicui/retro-grid';
 import { InteractiveGridPattern } from '@/components/magicui/interactive-grid-pattern';
 import { SparklesText } from '@/components/magicui/sparkles-text';
+import { Spotlight } from '@/components/ui/spotlight';
+import { useRouter } from 'next/navigation';
 
 const ReviewCard = ({ img, name, username, body }) => (
   <figure className="relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
@@ -30,6 +32,7 @@ const ReviewCard = ({ img, name, username, body }) => (
 function LandingPage() {
   const [loading, setloading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState(0);
+  const router = useRouter()
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -105,16 +108,17 @@ function LandingPage() {
 
       {/* 3D Model Viewer */}
       <div className="model-viewer-container relative w-full h-[350px] md:h-[600px]">
-        <RetroGrid className="absolute inset-0 w-full h-full" width={50} angle={20} opacity={0.5} />
-        <div className="pointer-events-none absolute top-[8%] left-0 w-[50%] h-1/4 " />
-        <div className="pointer-events-none absolute top-[8%] right-0 w-[50%] h-1/4 " />
+      <Spotlight
+        className="-top-40 left-0 md:left-60 md:-top-20"
+        fill="white"
+      />
       </div>
 
       {/* Hero Section */}
       <section className="w-full absolute top-2 md:top-[0%] lg:top-[4%] pt-6 md:pt-14 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-20 px-4">
         <div className="w-full text-center md:text-left">
           <h1 className="text-2xl font-bold md:text-5xl lg:text-6xl">
-            AI-Powered Mock Interviewer <span className="block md:inline"><SparklesText text={"for your Success"} sparklesCount={6} /></span>
+            AI-Powered Mock Interviewer <span className="block md:inline"><SparklesText className={"text-2xl md:text-5xl"} text={"for your Success"} sparklesCount={6} /></span>
           </h1>
         </div>
         <div className="w-full text-center md:text-left md:w-[40%]">
@@ -122,10 +126,10 @@ function LandingPage() {
             Questly AI is your personal AI-powered mock interviewer, designed to help you prepare for real-world interviews. With advanced AI technology, we provide realistic mock interviews, detailed feedback, and actionable insights to boost your confidence and performance.
           </p>
           <section className="w-full flex items-center gap-3 justify-center mt-4 md:justify-start">
-            <Button className="px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 font-medium transition-colors duration-200">
+            <Button onClick={()=> router.push("/sign-up")} className="px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 font-medium transition-colors duration-200">
               Get Started
             </Button>
-            <Button className="px-6 py-2 md:px-8 md:py-3 rounded-full bg-white text-black hover:bg-gray-100">
+            <Button onClick={()=> router.push("/TermsandCondition")} className="px-6 py-2 md:px-8 md:py-3 rounded-full bg-white text-black hover:bg-gray-100">
               Learn More <GoArrowUpRight className="inline ml-2" />
             </Button>
           </section>
@@ -166,7 +170,7 @@ function LandingPage() {
             className="hidden dark:block w-full h-auto"
             animationStyle="from-center"
             videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
-            thumbnailSrc="https://startup-template-sage.vercel.app/hero-dark.png"
+            thumbnailSrc="/new-dark-screenshot.PNG"
             thumbnailAlt="Hero Video"
           />
         </div>
@@ -175,17 +179,17 @@ function LandingPage() {
         <div className="w-full mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             {
-              icon: <LockKeyhole size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
+              icon: <BotMessageSquare size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
               title: "Realistic Mock Interviews",
               description: "Experience interviews that feel just like the real thing, with AI-powered simulations tailored to your target role.",
             },
             {
-              icon: <BookmarkCheck size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
+              icon: <MessageCircle size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
               title: "Personalized Feedback",
               description: "Get detailed feedback on your performance, including areas for improvement and actionable tips to succeed.",
             },
             {
-              icon: <Database size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
+              icon: <Bot size={37} className="bg-emerald-500 text-white rounded-sm p-2" />,
               title: "AI-Driven Insights",
               description: "Leverage AI to analyze your strengths and weaknesses, helping you focus on what matters most.",
             },
@@ -201,7 +205,7 @@ function LandingPage() {
         </div>
 
         {/* Stats Section */}
-        <div className="w-full mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+       {/*  <div className="w-full mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <section className="w-full md:w-1/2 text-center md:text-left">
             <h3 className="text-2xl font-bold md:text-4xl">Why Choose Questly AI?</h3>
             <p className="text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4">
@@ -233,11 +237,11 @@ function LandingPage() {
               </div>
             ))}
           </section>
-        </div>
+        </div> */}
       </section>
 
       {/* Features Image Section */}
-      <section className="w-full py-16 px-4">
+      {/* <section className="w-full py-16 px-4">
         <div className="relative max-w-7xl mx-auto h-[500px] flex flex-col items-center justify-center gap-6 overflow-hidden rounded-xl border bg-background shadow-lg">
           <h3 className="text-2xl md:text-4xl font-bold text-center leading-tight">
             Trusted by Over 100,000 Candidates
@@ -258,7 +262,7 @@ function LandingPage() {
           <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-white dark:from-background" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-white dark:from-background" />
         </div>
-      </section>
+      </section> */}
 
       <section className="w-full bg-white rounded-t-2xl mt-4 dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 py-16 md:h-[450px] flex flex-col md:flex-row items-center justify-between gap-8">
@@ -270,10 +274,10 @@ function LandingPage() {
               Join thousands of candidates who have transformed their interview skills with Questly AI.
             </p>
             <div className="flex flex-col md:flex-row items-center gap-4">
-              <Button className="px-6 py-2.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+              <Button onClick={()=> router.push("/sign-up")} className="px-6 py-2.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
                 Get Started <GoArrowUpRight className="inline ml-2 text-white dark:text-white" />
               </Button>
-              <Button className="hidden md:flex px-6 py-2.5 rounded-full bg-transparent border border-emerald-500 text-emerald-500 hover:bg-emerald-100 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
+              <Button onClick={()=> router.push("/TermsandCondition")} className="hidden md:flex px-6 py-2.5 rounded-full bg-transparent border border-emerald-500 text-emerald-500 hover:bg-emerald-100 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
                 Learn More <GoArrowUpRight className="inline ml-2 text-emerald-500 dark:text-white" />
               </Button>
             </div>

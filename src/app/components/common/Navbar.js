@@ -149,6 +149,7 @@ const Navbar = () => {
                             ) : (
                                 <Button
                                     className="h-9 bg-green-600 hover:bg-green-700"
+                                    onClick={()=> router.push("/sign-up")}
                                 >
                                     Get Started
                                 </Button>
@@ -194,9 +195,18 @@ const Navbar = () => {
                                 </Link>
                             )
                         ))}
-                        {!authStatus && (
+                        {authStatus ? (
                             <Button
-                                className="w-full mt-4 bg-green-600 hover:bg-green-700"
+                                onClick={handleLogout}
+                                variant="destructive"
+                                className="h-9"
+                            >
+                                Logout
+                            </Button>
+                        ) : (
+                            <Button
+                                className="h-9 bg-green-600 hover:bg-green-700"
+                                onClick={()=> router.push("/sign-up")}
                             >
                                 Get Started
                             </Button>

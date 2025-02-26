@@ -12,18 +12,17 @@ const Footer = () => {
 
   return (
     <section className="py-10 bg-gray-100 sm:pt-16 lg:pt-24 dark:bg-black"> {/* Light theme background, dark mode background */}
+    <hr className="mt-16 mb-10 border-gray-300 dark:border-gray-700" />
       <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
-        <div className="grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-4 md:gap-x-12">
+      
+        <div className="flex items-center justify-between">
           {/* Company, Help, Resources, Extra Links - Apply similar light and dark mode styles */}
-          <div>
+          {/* <div>
             <p className="text-base text-gray-500 dark:text-gray-400">Company</p>
             <ul className="mt-8 space-y-4">
-              {/* ... (Map over links and apply linkClasses) */}
+              
                 {[
                   { href: "/about", text: "About" },
-                  { href: "/features", text: "Features" },
-                  { href: "/works", text: "Works" },
-                  { href: "/career", text: "Career" },
                 ].map((item, index) => (
                   <li key={index}>
                     <Link href={item.href}>
@@ -32,8 +31,8 @@ const Footer = () => {
                   </li>
                 ))}
             </ul>
-          </div>
-          <div>
+          </div> */}
+          {/* <div>
             <p className="text-base text-gray-500 dark:text-gray-400">Help</p>
             <ul className="mt-8 space-y-4">
               {[
@@ -49,8 +48,8 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
-          <div>
+          </div> */}
+         {/*  <div>
             <p className="text-base text-gray-500 dark:text-gray-400">Resources</p>
             <ul className="mt-8 space-y-4">
               {[
@@ -66,15 +65,15 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
           <div>
             <p className="text-base text-gray-500 dark:text-gray-400">Extra Links</p>
-            <ul className="mt-8 space-y-4">
+            <ul className="mt-8 flex items-center gap-5">
               {[
-                { href: "/support", text: "Customer Support" },
-                { href: "/delivery", text: "Delivery Details" },
-                { href: "/terms", text: "Terms & Conditions" },
-                { href: "/privacy", text: "Privacy Policy" },
+                { href: "mailto:abdullahmukadam21@gmail.com", text: "Customer Support" },
+                { href: "/TermsandCondition", text: "Terms & Conditions" },
+                { href: "/PrivacyPolicy", text: "Privacy Policy" },
+                { href: "/RefundPolicy", text: "Refund Policy" },
               ].map((item, index) => (
                 <li key={index}>
                   <Link href={item.href}>
@@ -105,15 +104,11 @@ const Footer = () => {
               // ... (Social media icons)
               {
                 icon: <FiTwitter className="w-4 h-4 text-gray-700 dark:text-gray-400" />, // Light and dark mode icon color
-                href: "https://twitter.com",
-              },
-              {
-                icon: <FiFacebook className="w-4 h-4 text-gray-700 dark:text-gray-400" />,
-                href: "https://facebook.com",
+                href: "https://x.com/AiQuestly",
               },
               {
                 icon: <FiInstagram className="w-4 h-4 text-gray-700 dark:text-gray-400" />,
-                href: "https://instagram.com",
+                href: "https://instagram.com/aiquestly",
               },
               {
                 icon: <FiGithub className="w-4 h-4 text-gray-700 dark:text-gray-400" />,
@@ -130,6 +125,9 @@ const Footer = () => {
 
           <p className="w-full mt-8 text-sm text-center text-gray-500 md:mt-0 md:w-auto md:order-2 dark:text-gray-500"> {/* Light and dark mode text */}
             © Copyright 2025, All Rights Reserved by QuestlyAI
+          </p>
+          <p className="w-full mt-8 text-sm text-center text-blue-600 md:mt-0 md:w-auto md:order-2 "> {/* Light and dark mode text */}
+            #buildinginpublic by <a href="https://x.com/AiQuestly" className="text-black dark:text-white">@AbdullahMukadam</a>
           </p>
         </div>
       </div>
