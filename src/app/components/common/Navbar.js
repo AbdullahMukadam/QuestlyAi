@@ -52,11 +52,11 @@ const Navbar = () => {
             link: "/sign-in",
             show: !authStatus
         },
-        {
+       /*  {
             item: "Pricing",
             link: "/Pricing",
             show: authStatus
-        },
+        }, */
         /* {
             item: "Dashboard",
             link: "/dashboard",
