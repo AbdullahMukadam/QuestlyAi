@@ -86,18 +86,18 @@ export default function SubscriptionPlans() {
     }, [fetchUserData]);
 
     // Separate useEffect for subscription status check
-    useEffect(() => {
+   /*  useEffect(() => {
         if (userInfo?.subscriptionId) {
-            // Initial check
+           
             checkSubscriptionStatus();
 
-            // Set up interval
-            const interval = setInterval(checkSubscriptionStatus, 300000); // 5 minutes
+            
+            const interval = setInterval(checkSubscriptionStatus, 300000); 
 
-            // Cleanup
+            
             return () => clearInterval(interval);
         }
-    }, [userInfo?.subscriptionId, checkSubscriptionStatus]);
+    }, [userInfo?.subscriptionId, checkSubscriptionStatus]); */
 
     const handleSubscription = async (planId, amount, planName) => {
         setSelectedPlan(planId);

@@ -164,8 +164,8 @@ function AfterLoginHomepage() {
         <h1 className="text-3xl font-bold tracking-tight">Mock Interview Dashboard</h1>
         <Dialog open={open} onOpenChange={setopen}>
           <DialogTrigger asChild>
-            <Button disabled={(userData?.memberShipType === "free" && Interviews?.length >= 2) ||
-              (userData?.memberShipType === "Basic Monthly" && Interviews?.length >= 15)}>
+            <Button /* disabled={(userData?.memberShipType === "free" && Interviews?.length >= 2) ||
+              (userData?.memberShipType === "Basic Monthly" && Interviews?.length >= 15)} */>
               <Plus className="mr-2 h-4 w-4" />
               New Interview
             </Button>
@@ -241,12 +241,12 @@ function AfterLoginHomepage() {
       </div>
 
       <div className="space-y-4">
-        {(userData?.memberShipType === "free" && Interviews?.length === 2) ||
+       {/*  {(userData?.memberShipType === "free" && Interviews?.length === 2) ||
           (userData?.memberShipType === "Basic Monthly" && Interviews?.length === 15) ? (
           <p className='text-red-500'>
             Please upgrade your membership to add more interviews. You can still use your previous interviews.
           </p>
-        ) : null}
+        ) : null} */}
         <h2 className="text-2xl font-semibold tracking-tight">Previous Interviews</h2>
         {loading ? (
           <div className="flex justify-center py-8">
@@ -270,7 +270,7 @@ function AfterLoginHomepage() {
                   </div>
                 </CardContent>
                 <CardFooter className="p-4 pt-0 flex items-center gap-3">
-                  <Button variant="outline" className="w-full" disabled={userData?.memberShipType !== "Premium Monthly"} onClick={() => handleDelete(interview.id)}>
+                  <Button variant="outline" className="w-full" /* disabled={userData?.memberShipType !== "Premium Monthly"} */ onClick={() => handleDelete(interview.id)}>
                     Delete Interview
                   </Button>
                   <Link href={`/interview-screen/${interview.id}`} className="w-full">
