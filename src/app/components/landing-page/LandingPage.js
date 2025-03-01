@@ -162,14 +162,14 @@ function LandingPage() {
           <HeroVideoDialog
             className="dark:hidden block w-full h-auto"
             animationStyle="from-center"
-            videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
+            videoSrc="https://go.screenpal.com/player/cTeVoVn1DaO?width=100%&height=100%&ff=1&title=0&embed=1"
             thumbnailSrc="https://startup-template-sage.vercel.app/hero-light.png"
             thumbnailAlt="Hero Video"
           />
           <HeroVideoDialog
             className="hidden dark:block w-full h-auto"
             animationStyle="from-center"
-            videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
+            videoSrc="https://go.screenpal.com/player/cTeVoVn1DaO?width=100%&height=100%&ff=1&title=0&embed=1"
             thumbnailSrc="/new-dark-screenshot.PNG"
             thumbnailAlt="Hero Video"
           />
