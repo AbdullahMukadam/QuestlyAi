@@ -1,3 +1,9 @@
+Questly AI is your personal AI-powered mock interviewer, designed to help you prepare for real-world interviews. With advanced AI technology, we provide realistic mock interviews, detailed feedback, and actionable insights to boost your confidence and performance.
+
+How it works?
+To begin, sign up for an account. Then, click 'New Interview,' fill in the details for your desired interview, and click 'Create.' You'll be redirected to the interview screen. Turn on your camera and start the interview. Answer the questions, either by typing or voice. Once you've answered all questions, click 'Get Overall Feedback' for improvement suggestions. To end the interview, click 'Reset Interview.' You can then start again or create a new interview.
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
