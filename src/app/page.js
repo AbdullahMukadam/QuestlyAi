@@ -13,7 +13,7 @@ async function page() {
         }
 
         return (
-            <div className="w-full h-full px-4 md:px-8">
+            <div className="w-full h-full px-0 md:px-0">
                 <HomePageContainer
                     userId={userId}
                     userDetails={userDetails}

@@ -11,7 +11,7 @@ const Footer = () => {
     "text-base text-gray-700 transition-all duration-200 hover:text-opacity-80 focus:text-opacity-80 cursor-pointer dark:text-gray-300 dark:hover:text-white"; // Light theme and dark mode styles
 
   return (
-    <section className="py-10 bg-gray-100 sm:pt-16 lg:pt-24 dark:bg-black"> {/* Light theme background, dark mode background */}
+    <section className="py-10 font-sans bg-gray-100 sm:pt-16 lg:pt-24 dark:bg-zinc-950"> {/* Light theme background, dark mode background */}
     <hr className="mt-16 mb-10 border-gray-300 dark:border-gray-700" />
       <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
       
@@ -104,11 +104,11 @@ const Footer = () => {
               // ... (Social media icons)
               {
                 icon: <FiTwitter className="w-4 h-4 text-gray-700 dark:text-gray-400" />, // Light and dark mode icon color
-                href: "https://x.com/AiQuestly",
+                href: "https://x.com/abd_mukadam",
               },
               {
                 icon: <FiInstagram className="w-4 h-4 text-gray-700 dark:text-gray-400" />,
-                href: "https://instagram.com/aiquestly",
+                href: "https://instagram.com/",
               },
               {
                 icon: <FiGithub className="w-4 h-4 text-gray-700 dark:text-gray-400" />,
@@ -127,7 +127,7 @@ const Footer = () => {
             © Copyright 2025, All Rights Reserved by QuestlyAI
           </p>
           <p className="w-full mt-8 text-sm text-center text-blue-600 md:mt-0 md:w-auto md:order-2 "> {/* Light and dark mode text */}
-            #buildinginpublic by <a href="https://x.com/AiQuestly" className="text-black dark:text-white">@AbdullahMukadam</a>
+            #buildinginpublic by <a href="https://x.com/abd_mukadam" className="text-black dark:text-white">@AbdullahMukadam</a>
           </p>
         </div>
       </div>

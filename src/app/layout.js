@@ -35,7 +35,7 @@ export default function RootLayout({ children }) {
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange>
           <div className="min-h-screen flex flex-col items-center bg-slate-50 dark:bg-black">

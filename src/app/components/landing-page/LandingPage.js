@@ -15,6 +15,7 @@ import { InteractiveGridPattern } from '@/components/magicui/interactive-grid-pa
 import { SparklesText } from '@/components/magicui/sparkles-text';
 import { Spotlight } from '@/components/ui/spotlight';
 import { useRouter } from 'next/navigation';
+import InteractiveHero from '@/components/hero-section-nexus';
 
 const ReviewCard = ({ img, name, username, body }) => (
   <figure className="relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
@@ -100,41 +101,12 @@ function LandingPage() {
 
   return (
     <div className="w-full h-full relative font-sans">
-      <Script
-        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
-        strategy="afterInteractive"
-        type="module"
-      />
 
       {/* 3D Model Viewer */}
-      <div className="model-viewer-container relative w-full h-[350px] md:h-[600px]">
-      <Spotlight
-        className="-top-40 left-0 md:left-60 md:-top-20"
-        fill="white"
-      />
-      </div>
+      
 
       {/* Hero Section */}
-      <section className="w-full absolute top-2 md:top-[0%] lg:top-[4%] pt-6 md:pt-14 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-20 px-4">
-        <div className="w-full text-center md:text-left">
-          <h1 className="text-2xl font-bold md:text-5xl lg:text-6xl">
-            AI-Powered Mock Interviewer <span className="block md:inline"><SparklesText className={"text-2xl md:text-5xl"} text={"for your Success"} sparklesCount={6} /></span>
-          </h1>
-        </div>
-        <div className="w-full text-center md:text-left md:w-[40%]">
-          <p className="text-gray-600 text-sm md:text-base font-bold">
-            Questly AI is your personal AI-powered mock interviewer, designed to help you prepare for real-world interviews. With advanced AI technology, we provide realistic mock interviews, detailed feedback, and actionable insights to boost your confidence and performance.
-          </p>
-          <section className="w-full flex items-center gap-3 justify-center mt-4 md:justify-start">
-            <Button onClick={()=> router.push("/sign-up")} className="px-6 py-2 md:px-8 md:py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 font-medium transition-colors duration-200">
-              Get Started
-            </Button>
-            <Button onClick={()=> router.push("/TermsandCondition")} className="px-6 py-2 md:px-8 md:py-3 rounded-full bg-white text-black hover:bg-gray-100">
-              Learn More <GoArrowUpRight className="inline ml-2" />
-            </Button>
-          </section>
-        </div>
-      </section>
+      <InteractiveHero />
 
       {/* Demo Image for Mobile */}
       <section className="w-full mt-6 hidden px-4">
@@ -149,7 +121,7 @@ function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="w-full mt-8 px-4">
+      <section className="w-full mt-0 pt-6 px-4 dark:bg-zinc-950">
         <div className="w-full text-center">
           <h2 className="text-2xl font-bold md:text-4xl lg:text-5xl">Transform Your Interview Skills with AI</h2>
           <p className="text-gray-600 text-sm md:text-base font-bold mt-2 md:mt-4 max-w-2xl mx-auto">
@@ -264,7 +236,7 @@ function LandingPage() {
         </div>
       </section> */}
 
-      <section className="w-full bg-white rounded-t-2xl mt-4 dark:bg-black">
+      <section className="w-full bg-white rounded-t-2xl pt-6 mt-0 dark:bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 py-16 md:h-[450px] flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="w-full text-center md:text-left">
             <h3 className="text-2xl md:text-4xl font-bold leading-tight mb-4 text-emerald-500 dark:text-white">
