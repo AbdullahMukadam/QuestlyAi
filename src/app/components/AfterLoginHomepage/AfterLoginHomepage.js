@@ -142,7 +142,7 @@ function AfterLoginHomepage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-8">
+    <div className="container md:p-6 mx-auto py-6 space-y-8">
       {isSubmitting && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50">
           <div className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
