@@ -7,11 +7,11 @@ import { login } from '@/app/store/AuthSlice'
 import { useRouter } from 'next/navigation'
 import { addData } from '@/app/store/UserDataSlice'
 
-
 function HomePageContainer({ userId, userDetails }) {
     const authStatus = useSelector((state) => state.auth.authStatus)
     const dispatch = useDispatch()
     const router = useRouter()
+
 
     useEffect(() => {
         if (userId && !authStatus) {

@@ -27,6 +27,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Loader2, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { AlertDialogDemo } from '@/hooks/AlertDialog'
+import { pdfTextExtract } from '@/app/actions/TextExtractionAction'
 
 function AfterLoginHomepage() {
   const userData = useSelector((state) => state.userData.userData)
@@ -46,30 +47,37 @@ function AfterLoginHomepage() {
   const submitHandler = async (data) => {
     seterror("")
     try {
-      const InputPrompt = `job type :${data.Jobtype}, Description: ${data.Description}, Experience : ${Experience}, ${process.env.NEXT_PUBLIC_GEMINI_INPUT_PROMPT} `
-      const result = await chatSession.sendMessage(InputPrompt)
-      const filteredResponse = (result.response.text()).replace('```json', '').replace('```', '').trim()
-      const Data = JSON.parse(filteredResponse)
-      if (filteredResponse) {
-        const uniqueId = uuidv4()
-        const questionData = {
-          id: uniqueId,
-          userId: userData?.userId,
-          jobType: data.Jobtype,
-          jobDescription: data.Description,
-          jobExperience: Experience,
-          data: Data
-        }
-        const addinterviewQuestionstoDatabase = await AddInterviewQuestions(questionData)
-        if (addinterviewQuestionstoDatabase) {
-          toast({
-            title: "Success",
-            description: "You will be redirected to interview screen"
-          })
-          dispatch(addQuestions(addinterviewQuestionstoDatabase))
-          router.push(`/interview-screen/${uniqueId}`)
-        }
-      }
+      const file = data.questions[0]
+      let formData = new FormData()
+      formData.append("file", file)
+      const response = await pdfTextExtract(file)
+
+
+
+      // const InputPrompt = `job type :${data.Jobtype}, Description: ${data.Description}, Experience : ${Experience}, ${process.env.NEXT_PUBLIC_GEMINI_INPUT_PROMPT} `
+      // const result = await chatSession.sendMessage(InputPrompt)
+      // const filteredResponse = (result.response.text()).replace('```json', '').replace('```', '').trim()
+      // const Data = JSON.parse(filteredResponse)
+      // if (filteredResponse) {
+      //   const uniqueId = uuidv4()
+      //   const questionData = {
+      //     id: uniqueId,
+      //     userId: userData?.userId,
+      //     jobType: data.Jobtype,
+      //     jobDescription: data.Description,
+      //     jobExperience: Experience,
+      //     data: Data
+      //   }
+      //   const addinterviewQuestionstoDatabase = await AddInterviewQuestions(questionData)
+      //   if (addinterviewQuestionstoDatabase) {
+      //     toast({
+      //       title: "Success",
+      //       description: "You will be redirected to interview screen"
+      //     })
+      //     dispatch(addQuestions(addinterviewQuestionstoDatabase))
+      //     router.push(`/interview-screen/${uniqueId}`)
+      //   }
+      // }
     } catch (error) {
       seterror(error.message)
       toast({
@@ -89,11 +97,11 @@ function AfterLoginHomepage() {
         setInterviews(filteredInterviews)
       }
     } catch (error) {
-     /*  toast({
-        title: "Error",
-        description: "An error occurred in fetching all interviews" || error.message,
-        variant: "destructive"
-      }) */
+      /*  toast({
+         title: "Error",
+         description: "An error occurred in fetching all interviews" || error.message,
+         variant: "destructive"
+       }) */
     } finally {
       setloading(false)
     }
@@ -211,16 +219,16 @@ function AfterLoginHomepage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <p className='text-red-500'>Custom questions are under development</p>
+                  {/* <p className='text-red-500'>Custom questions are under development</p> */}
                   <Label htmlFor="questions">Custom Questions (Optional)</Label>
                   <Input
                     id="questions"
                     type="file"
-                    accept=".pdf"
-                    disabled
+                    accept=".pdf ,image/png, image/jpeg"
+
                     {...register("questions")}
                   />
-                  <p className="text-sm text-muted-foreground">PDF format only</p>
+                  <p className="text-sm text-muted-foreground">PDF, PNG, JPEG format only</p>
                 </div>
               </div>
               <DialogFooter>
@@ -241,7 +249,7 @@ function AfterLoginHomepage() {
       </div>
 
       <div className="space-y-4">
-       {/*  {(userData?.memberShipType === "free" && Interviews?.length === 2) ||
+        {/*  {(userData?.memberShipType === "free" && Interviews?.length === 2) ||
           (userData?.memberShipType === "Basic Monthly" && Interviews?.length === 15) ? (
           <p className='text-red-500'>
             Please upgrade your membership to add more interviews. You can still use your previous interviews.
