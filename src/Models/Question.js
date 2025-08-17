@@ -20,7 +20,7 @@ const QuestionSchema = new mongoose.Schema({
     },
     jobExperience: {
         type: String,
-        required: true
+        required: false
     },
     data: {
         type: Array,
