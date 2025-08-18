@@ -29,7 +29,7 @@ async function page() {
                     rel="icon"
                     href="/icon.png"
                     type="image/png"
-                   
+
                 />
                 <HomePageContainer userId={null} userDetails={null} />
             </div>

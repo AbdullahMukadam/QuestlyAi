@@ -26,7 +26,7 @@ function CommonLayout({ children }) {
   );
 }
 
-// Separate component to use hooks after ClerkProvider is initialized
+
 function SessionCheckWrapper({ children }) {
   useSessionCheck();
   return children;

@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import {
   Card,
   CardContent,
@@ -12,19 +11,47 @@ import {
 } from "@/components/ui/card"
 import { fetchInterviewDetails } from '@/app/actions/QuestionsAction'
 import Webcam from 'react-webcam'
-import { ArrowLeft, ArrowRight, Camera, Loader2, MicIcon, Volume2, StopCircle } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Camera,
+  Loader2,
+  MicIcon,
+  StopCircle
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-import { TypingAnimation } from '@/components/magicui/typing-animation'
 import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import useSpeechToText from 'react-hook-speech-to-text'
 import { useToast } from '@/hooks/use-toast'
 import { chatSession } from '@/utils/geminiapi'
 import copy from 'copy-to-clipboard'
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useFullTranscriptSpeechToText } from './SpeechRecording'
 
+const SimpleTypingAnimation = ({ children, className, duration = 50 }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentIndex < children.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(prev => prev + children[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, duration);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [currentIndex, children, duration]);
+
+  useEffect(() => {
+    setDisplayedText('');
+    setCurrentIndex(0);
+  }, [children]);
+
+  return <div className={className}>{displayedText}</div>;
+};
 
 function InterviewScreen({ id }) {
   const [interviewDetails, setinterviewDetails] = useState(null)
@@ -35,27 +62,24 @@ function InterviewScreen({ id }) {
   const router = useRouter()
   const [questions, setquestions] = useState(null)
   const [index, setindex] = useState(0)
-  const [startedSpeech, setstartedSpeech] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [userAnswers, setuserAnswers] = useState([])
-  const [singleAns, setsingleAns] = useState("")
   const [loadingForFeedback, setloadingForFeedback] = useState(false)
   const [userAnsFeedback, setuserAnsFeedback] = useState("")
-  const {
-    error,
-    interimResult,
-    isRecording,
-    results,
-    startSpeechToText,
-    stopSpeechToText,
-  } = useSpeechToText({
-    continuous: true,
-    useLegacyResults: false
-  });
-  const { toast } = useToast()
-  const [answerMode, setAnswerMode] = useState('type')
   const [typedAnswer, setTypedAnswer] = useState('')
-  const [accumulatedTranscript, setAccumulatedTranscript] = useState('');
+
+  const {
+    isRecording,
+    fullTranscript,
+    currentTranscript,
+    error,
+    isSupported,
+    startRecording: startSpeechRecording,
+    stopRecording: stopSpeechRecording,
+    clearTranscript
+  } = useFullTranscriptSpeechToText();
+
+  const { toast } = useToast()
 
   useEffect(() => {
     if (!dataFetched.current && id) {
@@ -80,170 +104,134 @@ function InterviewScreen({ id }) {
 
   const handleInterviewStart = () => {
     setstartInterview(true)
-    // Add speech synthesis for the first question
     if (questions && questions.length > 0) {
       handleSpeechSynthesis(questions[0])
     }
   }
 
   const handleSpeechSynthesis = (question) => {
-    // Cancel any ongoing speech
     speechSynthesis.cancel()
-
-    setstartedSpeech(true)
     setIsSpeaking(true)
 
     const utterance = new SpeechSynthesisUtterance(question)
-
-    utterance.onend = () => {
-      setIsSpeaking(false)
-    }
-
-    utterance.onerror = () => {
-      setIsSpeaking(false)
-    }
-
+    utterance.onend = () => setIsSpeaking(false)
+    utterance.onerror = () => setIsSpeaking(false)
     speechSynthesis.speak(utterance)
   }
 
-  const stopSpeech = () => {
-    speechSynthesis.cancel()
-    setIsSpeaking(false)
-  }
-
-  // Handle navigation with automatic speech
   const handleNavigation = (newIndex) => {
-    setindex(newIndex);
-    // Clear states when navigating
-    setuserAnsFeedback('');
-    setsingleAns('');
-    setTypedAnswer('');
-    setAccumulatedTranscript(''); // Clear accumulated transcript
-    // Stop any ongoing recording
     if (isRecording) {
-      stopSpeechToText();
+      stopSpeechRecording();
+      if (fullTranscript.trim().length >= 10) {
+        saveUserAnswer(fullTranscript.trim());
+      }
     }
-    // Get the existing answer for this question if any
+
+    setindex(newIndex);
+    setuserAnsFeedback('');
+    setTypedAnswer('');
+    clearTranscript();
+
     const existingAnswer = userAnswers.find(
       ans => ans.question === questions[newIndex]
     );
     if (existingAnswer) {
       setTypedAnswer(existingAnswer.answer);
     }
-    handleSpeechSynthesis(questions[newIndex]);
-  }
 
-  const handleRecord = () => {
-    if (error) {
+    handleSpeechSynthesis(questions[newIndex]);
+  };
+
+  const handleRecord = async () => {
+    if (!isSupported) {
       toast({
         title: "Not Supported",
-        description: "Voice Recording is not supported in your Browser, Please Switch to Chrome Browsers",
+        description: "Voice Recording is not supported in your Browser. Please Switch to Chrome Browsers",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
         variant: "destructive"
       });
       return;
     }
 
     if (isRecording) {
-      stopSpeechToText();
-      // Save the accumulated answer when stopping recording
-      if (accumulatedTranscript.trim().length >= 10) {
-        saveUserAnswer(accumulatedTranscript);
-        toast({
-          title: "Success",
-          description: "Your Answer Saved Successfully"
-        });
-      }
-      // Clear the accumulated transcript
-      setAccumulatedTranscript('');
-      setsingleAns('');
+      stopSpeechRecording();
+
+      setTimeout(() => {
+        if (fullTranscript.trim().length >= 10) {
+          saveUserAnswer(fullTranscript.trim());
+          toast({
+            title: "Success",
+            description: "Your Answer Saved Successfully"
+          });
+        } else if (fullTranscript.trim().length > 0) {
+          toast({
+            title: "Short Answer",
+            description: "Your answer seems short. Please provide more details.",
+            variant: "destructive"
+          });
+        }
+      }, 500);
+
     } else {
-      // Clear previous transcripts when starting new recording
-      setAccumulatedTranscript('');
-      setsingleAns('');
-      startSpeechToText();
+      clearTranscript();
+      await startSpeechRecording();
+
+      if (!error) {
+        // toast({
+        //   title: "Recording Started",
+        //   description: "Speak clearly into your microphone",
+          
+        // });
+        console.log("recordind started")
+      }
     }
   };
 
-  useEffect(() => {
-    if (results.length > 0 && isRecording) {
-      // Get the latest transcript
-      const latestTranscript = results[results.length - 1].transcript;
-      // Accumulate transcripts while recording
-      setAccumulatedTranscript(prev => {
-        // If it's a new recording session, don't include previous content
-        if (prev.length === 0) {
-          return latestTranscript;
-        }
-        // Append new content if it's different
-        if (!prev.includes(latestTranscript)) {
-          return `${prev} ${latestTranscript}`;
-        }
-        return prev;
-      });
-      setsingleAns(accumulatedTranscript);
-    }
-  }, [results, isRecording]);
+  const saveUserAnswer = (answer) => {
+    if (!answer || !answer.trim()) return;
 
-  const saveUserAnswer = (answer = singleAns) => {
-    if (!answer.trim()) return;
-
+    const cleanAnswer = answer.trim();
     const existingAnswerIndex = userAnswers.findIndex(
       ans => ans.question === questions[index]
     );
 
     setuserAnswers(prev => {
       if (existingAnswerIndex !== -1) {
-        // Update existing answer
         const newAnswers = [...prev];
         newAnswers[existingAnswerIndex] = {
           question: questions[index],
-          answer: answer
+          answer: cleanAnswer
         };
         return newAnswers;
       } else {
-        // Add new answer
         return [...prev, {
           question: questions[index],
-          answer: answer
+          answer: cleanAnswer
         }];
       }
     });
   };
 
-  // Cleanup speech synthesis when component unmounts
   useEffect(() => {
     return () => {
       speechSynthesis.cancel()
     }
   }, [])
 
-  // This function gives overall feedback for all answers
-  const handleSubmitToGemini = async () => {
-    setloadingForFeedback(true)
-    const FeedbackPrompt = `Data: ${JSON.stringify(userAnswers)}
-    Depending upon the questions and user answers, please give us a feedback as a area of improvement in just 3 to 5 lines.`;
-
-    const result = await chatSession.sendMessage(FeedbackPrompt)
-    const filteredResponse = result.response.text()
-    setuserAnsFeedback(filteredResponse)
-    setloadingForFeedback(false)
-  }
-
-  const handleStartInterviewAgain = () => {
-    setstartInterview(false)
-    setuserAnswers([])
-    setsingleAns("")
-    setindex(0)
-    setuserAnsFeedback("")
-  }
-
   const handleCopyFeedback = () => {
     copy(userAnsFeedback)
     toast({
-      title: "Sucess",
+      title: "Success",
       description: "Feedback Copied to Clipboard"
     })
-
   }
 
   const handleTypedAnswerSubmit = () => {
@@ -254,7 +242,6 @@ function InterviewScreen({ id }) {
 
       setuserAnswers(prev => {
         if (existingAnswerIndex !== -1) {
-          // Update existing answer
           const newAnswers = [...prev];
           newAnswers[existingAnswerIndex] = {
             question: questions[index],
@@ -262,7 +249,6 @@ function InterviewScreen({ id }) {
           };
           return newAnswers;
         } else {
-          // Add new answer
           return [...prev, {
             question: questions[index],
             answer: typedAnswer
@@ -270,7 +256,6 @@ function InterviewScreen({ id }) {
         }
       });
 
-      // Clear the typed answer and feedback after submission
       setTypedAnswer('');
       setuserAnsFeedback('');
 
@@ -282,24 +267,21 @@ function InterviewScreen({ id }) {
   };
 
   const handleResetInterview = () => {
-    // Reset all the states to initial values
+    if (isRecording) {
+      stopSpeechRecording();
+    }
+
+    clearTranscript();
+
     setindex(0)
     setuserAnswers([])
     setuserAnsFeedback("")
-    setsingleAns("")
     setTypedAnswer("")
-    setstartInterview(false) // This will show the initial screen
+    setstartInterview(false)
     setwebcamEnable(false)
-    setstartedSpeech(false)
     setIsSpeaking(false)
 
-    // Cancel any ongoing speech
     speechSynthesis.cancel()
-
-    // Stop recording if active
-    if (isRecording) {
-      stopSpeechToText()
-    }
 
     toast({
       title: "Interview Reset",
@@ -308,26 +290,18 @@ function InterviewScreen({ id }) {
   }
 
   function formatFeedback(feedbackString) {
-    // Split the string into lines
     const lines = feedbackString.split('\n');
-
-    // Initialize an array to store the formatted lines
     const formattedLines = [];
 
-    // Iterate through the lines
     for (const line of lines) {
-      // Check if the line starts with "**" (indicating a new section)
       if (line.trim().startsWith('**')) {
-        // Add a newline character before the line (except for the first section)
         if (formattedLines.length > 0) {
           formattedLines.push('\n');
         }
       }
-      // Add the line to the formatted lines array
       formattedLines.push(line);
     }
 
-    // Join the formatted lines back into a single string
     return formattedLines.join('\n');
   }
 
@@ -346,7 +320,7 @@ function InterviewScreen({ id }) {
         2. Key strengths
         3. Areas for improvement
         4. Communication skills
-        Please format the response in clear sections. And ignore the grammer mistakes`;
+        Please format the response in clear sections. And ignore the grammar mistakes`;
 
         const result = await chatSession.sendMessage(overallFeedbackPrompt);
         const feedback = result.response.text();
@@ -377,14 +351,7 @@ function InterviewScreen({ id }) {
 
   return (
     <div className="min-h-screen p-1 md:p-6">
-      {isLoading ? (
-        <div className="flex min-h-[80vh] items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-lg font-medium text-muted-foreground">Loading interview...</p>
-          </div>
-        </div>
-      ) : !startInterview ? (
+      {!startInterview ? (
         <div className="container mx-auto max-w-4xl p-3 md:p-6 space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">Interview Preparation</h1>
@@ -412,7 +379,6 @@ function InterviewScreen({ id }) {
           )}
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Job Details */}
             <Card>
               <CardHeader>
                 <CardTitle>Position Details</CardTitle>
@@ -421,15 +387,15 @@ function InterviewScreen({ id }) {
               <CardContent className="space-y-4">
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Role</p>
-                  <p className="font-medium capitalize">{interviewDetails?.jobType}</p>
+                  <p className="font-medium capitalize">{interviewDetails?.jobType || "Not Provided"}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Description</p>
-                  <p className="font-medium capitalize">{interviewDetails?.jobDescription}</p>
+                  <p className="font-medium capitalize">{interviewDetails?.jobDescription || "Not Provided"}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Experience</p>
-                  <p className="font-medium capitalize">{interviewDetails?.jobExperience}</p>
+                  <p className="font-medium capitalize">{interviewDetails?.jobExperience || "Not Provided"}</p>
                 </div>
               </CardContent>
               <CardFooter>
@@ -443,7 +409,6 @@ function InterviewScreen({ id }) {
               </CardFooter>
             </Card>
 
-            {/* Webcam Setup */}
             <Card>
               <CardHeader>
                 <CardTitle>Camera Setup</CardTitle>
@@ -482,126 +447,103 @@ function InterviewScreen({ id }) {
       ) : (
         <div className="min-h-screen bg-gradient-to-b from-background to-background/95 p-6">
           <div className="container mx-auto max-w-5xl space-y-8">
-            {/* Loading State */}
-            {isLoading && (
-              <div className="flex min-h-[80vh] items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <p className="text-lg font-medium text-muted-foreground">Loading interview...</p>
-                </div>
-              </div>
-            )}
-
-            {/* Main Interview Content */}
-            {startInterview && !isLoading && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column - Webcam and Controls */}
-                <div className="lg:col-span-1 space-y-4">
-                  {/* Webcam Card */}
-                  <Card className="h-full">
-                    <CardContent className="p-4">
-                      {webcamEnable ? (
-                        <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                          <Webcam
-                            mirrored
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="aspect-video flex items-center justify-center bg-muted rounded-lg">
-                          <Button onClick={() => setwebcamEnable(true)} variant="outline">
-                            <Camera className="h-4 w-4 mr-2" />
-                            Enable Camera
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                    <CardContent className="p-4 space-y-4">
-                      <div className="flex flex-col gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={handleResetInterview}
-                        >
-                          Reset Interview
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => handleSpeechSynthesis(questions[index])}
-                          disabled={isSpeaking}
-                        >
-                          Replay Question
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1 space-y-4">
+                <Card className="h-full">
+                  <CardContent className="p-4">
+                    {webcamEnable ? (
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
+                        <Webcam
+                          mirrored
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="aspect-video flex items-center justify-center bg-muted rounded-lg">
+                        <Button onClick={() => setwebcamEnable(true)} variant="outline">
+                          <Camera className="h-4 w-4 mr-2" />
+                          Enable Camera
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Interview Controls */}
-
-
-
-                </div>
-
-                {/* Right Column - Questions and Answers */}
-                <div className="lg:col-span-2">
-                  <div className="space-y-6">
-                    {/* Progress Bar */}
-                    <div className="space-y-2">
-                      <Progress value={((index + 1) / questions?.length) * 100} />
-                      <p className="text-sm text-center text-muted-foreground">
-                        Question {index + 1} of {questions?.length}
-                      </p>
+                    )}
+                  </CardContent>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={handleResetInterview}
+                      >
+                        Reset Interview
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleSpeechSynthesis(questions[index])}
+                        disabled={isSpeaking}
+                      >
+                        Replay Question
+                      </Button>
                     </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-                    {/* Question Card */}
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="space-y-6">
-                          {/* Question Display */}
-                          <div className="min-h-[100px] p-6 rounded-xl bg-muted/30 border shadow-sm">
-                            <TypingAnimation className="text-lg" duration={70}>
-                              {questions[index]}
-                            </TypingAnimation>
-                          </div>
+              <div className="lg:col-span-2">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Progress value={((index + 1) / questions?.length) * 100} />
+                    <p className="text-sm text-center text-muted-foreground">
+                      Question {index + 1} of {questions?.length}
+                    </p>
+                  </div>
 
-                          {/* Answer Input Section */}
-                          <Tabs defaultValue="type" className="space-y-4">
-                            <TabsList className="grid w-full grid-cols-2">
-                              <TabsTrigger value="type">Type Answer</TabsTrigger>
-                              <TabsTrigger value="speech">Voice Answer</TabsTrigger>
-                            </TabsList>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="space-y-6">
+                        <div className="min-h-[100px] p-6 rounded-xl bg-muted/30 border shadow-sm">
+                          <SimpleTypingAnimation className="text-lg" duration={70}>
+                            {questions[index]}
+                          </SimpleTypingAnimation>
+                        </div>
 
-                            <TabsContent value="type" className="space-y-4">
-                              <Textarea
-                                placeholder="Type your answer here..."
-                                value={typedAnswer}
-                                onChange={(e) => setTypedAnswer(e.target.value)}
-                                className="min-h-[150px]"
-                              />
-                              <Button
-                                onClick={handleTypedAnswerSubmit}
-                                disabled={!typedAnswer.trim() || loadingForFeedback}
-                                className="w-full"
-                              >
-                                {loadingForFeedback ? (
-                                  <div className="flex items-center justify-center gap-2">
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                    Processing...
-                                  </div>
-                                ) : (
-                                  "Submit Answer"
-                                )}
-                              </Button>
-                            </TabsContent>
+                        <Tabs defaultValue="type" className="space-y-4">
+                          <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="type">Type Answer</TabsTrigger>
+                            <TabsTrigger value="speech">Voice Answer</TabsTrigger>
+                          </TabsList>
 
-                            <TabsContent value="speech" className="space-y-4">
-                              <div className="flex justify-center gap-4">
+                          <TabsContent value="type" className="space-y-4">
+                            <Textarea
+                              placeholder="Type your answer here..."
+                              value={typedAnswer}
+                              onChange={(e) => setTypedAnswer(e.target.value)}
+                              className="min-h-[150px]"
+                            />
+                            <Button
+                              onClick={handleTypedAnswerSubmit}
+                              disabled={!typedAnswer.trim() || loadingForFeedback}
+                              className="w-full"
+                            >
+                              {loadingForFeedback ? (
+                                <div className="flex items-center justify-center gap-2">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Processing...
+                                </div>
+                              ) : (
+                                "Submit Answer"
+                              )}
+                            </Button>
+                          </TabsContent>
+
+                          <TabsContent value="speech" className="space-y-4">
+                            <div className="space-y-4">
+                              <div className="flex justify-center items-center gap-4">
                                 {!isRecording ? (
                                   <Button
                                     variant="outline"
                                     size="icon"
-                                    className="h-12 w-12"
+                                    className="h-12 w-12 hover:bg-green-50"
                                     onClick={handleRecord}
-                                    disabled={isSpeaking}
+                                    disabled={isSpeaking || !isSupported}
                                   >
                                     <MicIcon className="h-6 w-6" />
                                   </Button>
@@ -609,88 +551,132 @@ function InterviewScreen({ id }) {
                                   <Button
                                     variant="outline"
                                     size="icon"
-                                    className="h-12 w-12 bg-red-100"
+                                    className="h-12 w-12 bg-red-100 hover:bg-red-200"
                                     onClick={handleRecord}
                                   >
                                     <StopCircle className="h-6 w-6 text-red-500" />
                                   </Button>
                                 )}
+
+                                {fullTranscript && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={clearTranscript}
+                                    className="ml-2"
+                                  >
+                                    Clear
+                                  </Button>
+                                )}
                               </div>
 
-                              {startedSpeech && (
-                                <div className="space-y-2">
-                                  <p className="text-sm text-muted-foreground text-center">
-                                    {isRecording ? "Recording..." : "Click microphone to start recording"}
-                                  </p>
-                                  {results.length > 0 && (
-                                    <p className="p-4 rounded-lg bg-muted">
-                                      {results[results.length - 1].transcript}
-                                    </p>
-                                  )}
+                              {error && (
+                                <Alert variant="destructive">
+                                  <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                              )}
+
+                              {isRecording && (
+                                <div className="text-center">
+                                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 border border-red-200 rounded-full text-sm">
+                                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                    <span className="text-red-700 font-medium">Recording... Speak clearly</span>
+                                  </div>
                                 </div>
                               )}
-                            </TabsContent>
-                          </Tabs>
 
-                          {/* Feedback Section */}
-                          <Button
-                            onClick={handleOverallFeedback}
-                            className="w-full mt-4"
-                            disabled={userAnswers.length !== questions?.length || loadingForFeedback}
-                          >
-                            {loadingForFeedback ? (
-                              <div className="flex items-center justify-center gap-2">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Generating Overall Feedback...
-                              </div>
-                            ) : userAnswers.length !== questions?.length ? (
-                              `Answer all ${questions?.length} questions for feedback`
-                            ) : (
-                              "Get Overall Feedback"
-                            )}
-                          </Button>
+                              {currentTranscript && isRecording && (
+                                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                  <div className="text-xs text-blue-600 font-medium mb-1">Currently speaking:</div>
+                                  <div className="text-blue-800 italic text-sm">{currentTranscript}</div>
+                                </div>
+                              )}
 
-                          {userAnsFeedback && (
-                            <div className="mt-4 p-4 bg-muted rounded-lg">
-                              <div className="flex justify-between items-start">
-                                <h4 className="font-semibold mb-2">Overall Feedback:</h4>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={handleCopyFeedback}
-                                >
-                                  Copy
-                                </Button>
-                              </div>
-                              <p>{userAnsFeedback}</p>
+                              {fullTranscript && (
+                                <div className="p-4 bg-muted/30 border-[0.8px] border-gray-600 rounded-lg">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div className="text-sm text-white font-medium">Your Answer:</div>
+                                    <div className="text-xs text-green-500">
+                                      {fullTranscript.split(' ').filter(word => word.trim()).length} words
+                                    </div>
+                                  </div>
+                                  <textarea
+                                    className="w-full p-3 rounded text-white resize-none"
+                                    value={fullTranscript}
+                                    readOnly
+                                    rows={Math.min(8, Math.max(3, fullTranscript.split('\n').length))}
+                                  />
+                                </div>
+                              )}
+
+                              {!isRecording && !fullTranscript && (
+                                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                                  <p className="text-gray-600 text-sm">
+                                    Click the microphone to start recording your answer.
+                                    Speak clearly and take your time.
+                                  </p>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                          </TabsContent>
+                        </Tabs>
 
-                    {/* Navigation Buttons */}
-                    <div className="flex justify-between">
-                      <Button
-                        variant="outline"
-                        onClick={() => handleNavigation(index - 1)}
-                        disabled={index === 0}
-                      >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Previous
-                      </Button>
-                      <Button
-                        onClick={() => handleNavigation(index + 1)}
-                        disabled={index === questions?.length - 1}
-                      >
-                        Next
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </div>
+                        <Button
+                          onClick={handleOverallFeedback}
+                          className="w-full mt-4"
+                          disabled={userAnswers.length !== questions?.length || loadingForFeedback}
+                        >
+                          {loadingForFeedback ? (
+                            <div className="flex items-center justify-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Generating Overall Feedback...
+                            </div>
+                          ) : userAnswers.length !== questions?.length ? (
+                            `Answer all ${questions?.length} questions for feedback`
+                          ) : (
+                            "Get Overall Feedback"
+                          )}
+                        </Button>
+
+                        {userAnsFeedback && (
+                          <div className="mt-4 p-4 bg-muted rounded-lg">
+                            <div className="flex justify-between items-start">
+                              <h4 className="font-semibold mb-2">Overall Feedback:</h4>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleCopyFeedback}
+                              >
+                                Copy
+                              </Button>
+                            </div>
+                            <p className="whitespace-pre-wrap">{userAnsFeedback}</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleNavigation(index - 1)}
+                      disabled={index === 0}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Previous
+                    </Button>
+                    <Button
+                      onClick={() => handleNavigation(index + 1)}
+                      disabled={index === questions?.length - 1}
+                    >
+                      Next
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}

@@ -582,7 +582,7 @@ const InteractiveHero = () => {
 
   return (
       (<div
-          className="pt-[100px] relative bg-[#000000] text-gray-300 min-h-screen flex flex-col overflow-x-hidden">
+          className="md:pt-[60px] pt-[15px] relative bg-[#000000] text-gray-300 min-h-screen flex flex-col overflow-x-hidden">
           <canvas
               ref={canvasRef}
               className="absolute inset-0 z-0 pointer-events-none opacity-80" />

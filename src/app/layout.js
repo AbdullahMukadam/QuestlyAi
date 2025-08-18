@@ -39,7 +39,7 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange>
           <div className="min-h-screen flex flex-col items-center bg-slate-50 dark:bg-black">
-            <main className="w-full max-w-7xl mx-auto">
+            <main className="w-full max-w-[90rem] mx-auto">
               <Suspense fallback={<SkeletonLoader />}>
                 <CommonLayout>{children}</CommonLayout>
               </Suspense>
