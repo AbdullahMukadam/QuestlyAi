@@ -536,7 +536,7 @@ function InterviewScreen({ id }) {
 
                           <TabsContent value="speech" className="space-y-4">
                             <div className="space-y-4">
-                              <div className="flex justify-center gap-4">
+                              <div className="flex justify-center items-center gap-4">
                                 {!isRecording ? (
                                   <Button
                                     variant="outline"
@@ -593,15 +593,15 @@ function InterviewScreen({ id }) {
                               )}
 
                               {fullTranscript && (
-                                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <div className="p-4 bg-muted/30 border-[0.8px] border-gray-600 rounded-lg">
                                   <div className="flex justify-between items-start mb-2">
-                                    <div className="text-sm text-green-600 font-medium">Your Answer:</div>
+                                    <div className="text-sm text-white font-medium">Your Answer:</div>
                                     <div className="text-xs text-green-500">
                                       {fullTranscript.split(' ').filter(word => word.trim()).length} words
                                     </div>
                                   </div>
                                   <textarea
-                                    className="w-full p-3 border border-green-300 rounded bg-white text-green-800 resize-none"
+                                    className="w-full p-3 rounded text-white resize-none"
                                     value={fullTranscript}
                                     readOnly
                                     rows={Math.min(8, Math.max(3, fullTranscript.split('\n').length))}

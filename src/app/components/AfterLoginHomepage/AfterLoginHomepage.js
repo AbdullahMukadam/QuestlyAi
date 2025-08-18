@@ -149,7 +149,6 @@ function AfterLoginHomepage() {
           }
         }
       } else if (data.questionType === "generated") {
-        // Validate required fields for generated questions
         if (!data.Jobtype || !data.Description || !Experience) {
           toast({
             title: "Error",
@@ -227,7 +226,7 @@ function AfterLoginHomepage() {
     }
   }
 
-  // Reset form when dialog opens/closes
+ 
   const handleDialogChange = (isOpen) => {
     setopen(isOpen)
     if (!isOpen) {
@@ -286,13 +285,11 @@ function AfterLoginHomepage() {
             </DialogHeader>
             <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
               <div className="space-y-4">
-                {/* Question Type Selection */}
                 <div className="space-y-3">
                   <Label className="text-base font-semibold">How would you like to create questions?</Label>
                   <RadioGroup
                     value={questionType}
                     onValueChange={(value) => {
-                      // Update the form value
                       register("questionType").onChange({
                         target: { value, name: "questionType" }
                       })
@@ -321,7 +318,7 @@ function AfterLoginHomepage() {
                   <input type="hidden" {...register("questionType")} />
                 </div>
 
-                {/* Generated Questions Fields */}
+              
                 {questionType === "generated" && (
                   <div className="space-y-4 border-t pt-4">
                     <div className="space-y-2">
@@ -364,7 +361,7 @@ function AfterLoginHomepage() {
                   </div>
                 )}
 
-                {/* Custom Questions Fields */}
+                
                 {questionType === "custom" && (
                   <div className="space-y-4 border-t pt-4">
                     <div className="space-y-2">
@@ -382,7 +379,7 @@ function AfterLoginHomepage() {
                       </p>
                     </div>
 
-                    {/* Optional fields for custom questions to help with categorization */}
+                    
                     <div className="space-y-2">
                       <Label htmlFor="CustomJobtype">Job Role (Optional)</Label>
                       <Input

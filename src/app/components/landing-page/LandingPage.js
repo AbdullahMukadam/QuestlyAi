@@ -19,7 +19,6 @@ import InteractiveHero from '@/components/hero-section-nexus';
 import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
 import Link from 'next/link';
 import { GoogleGeminiEffect } from '@/components/ui/google-gemini-effect';
-import { useScroll, useTransform } from "motion/react";
 
 const ReviewCard = ({ img, name, username, body }) => (
   <figure className="relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4 bg-white dark:bg-gray-800">
@@ -38,17 +37,6 @@ function LandingPage() {
   const [loading, setloading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState(0);
   const router = useRouter()
-  const ref = React.useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-
-  const pathLengthFirst = useTransform(scrollYProgress, [0, 0.8], [0.2, 1.2]);
-  const pathLengthSecond = useTransform(scrollYProgress, [0, 0.8], [0.15, 1.2]);
-  const pathLengthThird = useTransform(scrollYProgress, [0, 0.8], [0.1, 1.2]);
-  const pathLengthFourth = useTransform(scrollYProgress, [0, 0.8], [0.05, 1.2]);
-  const pathLengthFifth = useTransform(scrollYProgress, [0, 0.8], [0, 1.2]);
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -70,13 +58,13 @@ function LandingPage() {
       name: "Jack",
       username: "@jack",
       body: "Questly AI helped me ace my interviews! The mock interviews were so realistic and the feedback was incredibly detailed.",
-      img: "https://avatar.vercel.sh/jack",
+      img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=60",
     },
     {
       name: "Jill",
       username: "@jill",
       body: "I was nervous about my interviews, but Questly AI gave me the confidence I needed. The AI feedback was spot on!",
-      img: "https://avatar.vercel.sh/jill",
+      img: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60",
     },
     {
       name: "Alex",
@@ -84,7 +72,7 @@ function LandingPage() {
       body: "The AI-powered mock interviews were a game-changer for me. I landed my dream job thanks to Questly AI!",
       img: "https://avatar.vercel.sh/jill",
     },
-    // ... add more reviews as needed
+    
   ]
 
   const people1 = [
@@ -134,24 +122,7 @@ function LandingPage() {
   return (
     <div className="w-full h-full relative font-sans">
 
-
-      {/* 3D Model Viewer */}
-
-
-      {/* Hero Section */}
       <InteractiveHero />
-
-      {/* Demo Image for Mobile */}
-      <section className="w-full mt-6 hidden px-4">
-        <Image
-          src="/demo_image.jfif"
-          alt="DashBoard"
-          width={600}
-          height={400}
-          className="w-full h-auto object-contain"
-          loading="lazy"
-        />
-      </section>
 
       {/* Features Section */}
       <section className="w-full mt-0 pt-6 px-4 dark:bg-zinc-950">
@@ -184,8 +155,8 @@ function LandingPage() {
         <div className='w-full p-4 md:p-8 z-50 text-white'>
           <div className='w-full flex flex-col md:flex-row md:items-center justify-between'>
             <div className='w-full md:w-[70%] mb-6 md:mb-0'>
-              <h1 className='text-3xl md:text-6xl text-white'>Designed for Designers. <br /> Powered by <span className='text-[#0CF2A0]'>AI</span>.</h1>
-              <p className='text-white text-sm md:text-base mt-3 font-thin'>Unlock the full potential of your creativity with our AI-powered design assistant. <br className='hidden md:block' /> Explore new dimensions of design</p>
+              <h1 className='text-3xl md:text-6xl text-white'>Designed for Professionals. <br /> Powered by <span className='text-[#0CF2A0]'>AI</span>.</h1>
+              <p className='text-white text-sm md:text-base mt-3 font-thin'>Unlock the full potential of your creativity with our AI-powered mock Interviewer. <br className='hidden md:block' /> Explore new dimensions of interview</p>
             </div>
             <div className='w-full md:w-[50%] flex justify-center'>
               <img className='w-16 h-20 md:w-28 md:h-28' src="/Vector (2).png" alt="vector" />
@@ -195,14 +166,14 @@ function LandingPage() {
             <div className='w-full flex flex-col md:flex-row items-center gap-4 md:gap-6 justify-between'>
               <div className='w-full md:w-[40%] p-4 bg-[#272829] bg-custom-gradient rounded-2xl'>
                 <div className='w-full flex gap-2 justify-between'>
-                  <p className='text-[#D9D9D9] text-sm md:text-base flex-1'>Skip the blank canvas and spark creativity instantly. Our AI generates high-quality, on-brand design concepts within seconds</p>
+                  <p className='text-[#D9D9D9] text-sm md:text-base flex-1'>Skip the blank canvas and spark creativity instantly. Our AI generates high-quality, real mock interview within seconds</p>
                   <Image width={12} height={12} className='w-12 h-12 md:w-15 md:h-15 flex-shrink-0 cursor-pointer' src="/Background.svg" alt="arrow" />
                 </div>
                 <h2 className='text-2xl md:text-4xl text-white mt-4 md:mt-6'>Instant Ideation</h2>
               </div>
               <div className='w-full md:w-[60%] p-4 bg-[#272829] rounded-2xl'>
                 <div className='w-full flex gap-2 justify-between'>
-                  <p className='text-[#D9D9D9] text-sm md:text-base flex-1'>No two creators are the same, and neither are their styles. Our AI learns from your inputs, understands your aesthetic preferences, and fine-tunes every design</p>
+                  <p className='text-[#D9D9D9] text-sm md:text-base flex-1'>No two Persons are the same, and neither are their skills. Our AI learns from your inputs, understands your preferences, and fine-tunes every question</p>
                   <Image width={12} height={12} className='w-12 h-12 md:w-15 md:h-15 flex-shrink-0 cursor-pointer' src="/Background.svg" alt="arrow" />
                 </div>
                 <h2 className='text-2xl md:text-4xl text-white mt-4 md:mt-6'>Smart Adaptability</h2>
@@ -231,15 +202,15 @@ function LandingPage() {
             <div className='w-full flex items-center justify-center mt-7'>
               <div className='w-full md:w-[50%] p-2 flex gap-2 md:gap-4 items-start'>
                 <span className='text-[#D9D9D9] flex-shrink-0 text-sm md:text-base'>2025</span>
-                <p className='text-white font-bold text-sm md:text-xl'>Whether you re designing for personal projects, creative teams, or large-scale campaigns, our AI-powered platform is built to bring your ideas to life—quickly, beautifully, and intelligently. And the results? The numbers speak for themselves:</p>
+                <p className='text-white font-bold text-sm md:text-xl'>Whether you re practising for projects demo, creative teams, or large-scale campaigns, our AI-powered platform is built to bring your best to life—quickly, beautifully, and intelligently. And the results? The numbers speak for themselves:</p>
               </div>
             </div>
             <div className='w-full p-2 flex flex-col items-center justify-center'>
               <div className='w-[95%] min-h-[240px] p-2 md:p-4 mt-10 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-white'>
                 <section className='flex flex-col'>
-                  <h3 className='text-4xl md:text-6xl font-bold'>2014</h3>
+                  <h3 className='text-4xl md:text-6xl font-bold'>2024</h3>
                   <h6 className='text-lg md:text-xl'>Year of establishment</h6>
-                  <span className='text-gray-700 text-sm md:text-base'>More than 10 years in the field</span>
+                  <span className='text-gray-700 text-sm md:text-base'>More than a year in the field</span>
                   <div className='w-full flex items-center mt-2'>
                     <AnimatedTooltip items={people1} />
                     <svg className='-translate-y-2 md:-translate-y-4 w-32 md:w-auto' width="195" height="93" viewBox="0 0 195 93" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -252,8 +223,8 @@ function LandingPage() {
                 </section>
                 <section className='flex flex-col md:translate-y-14'>
                   <h3 className='text-4xl md:text-6xl font-bold'>302</h3>
-                  <h6 className='text-lg md:text-xl'>Projects are launched</h6>
-                  <span className='text-gray-700 text-sm md:text-base'>A lot of projects are done</span>
+                  <h6 className='text-lg md:text-xl'>Interviews are Perform</h6>
+                  <span className='text-gray-700 text-sm md:text-base'>A lot of interviews are done</span>
                   <div className='w-full flex items-center mt-2'>
                     <AnimatedTooltip items={people1} />
                     <svg className='translate-y-2 md:translate-y-4 w-40 md:w-auto' width="240" height="94" viewBox="0 0 240 94" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -266,7 +237,7 @@ function LandingPage() {
                 </section>
                 <section className='flex flex-col'>
                   <h3 className='text-4xl md:text-6xl font-bold'>189</h3>
-                  <h6 className='text-lg md:text-xl'>Clients are satisfied</h6>
+                  <h6 className='text-lg md:text-xl'>Peoplw are satisfied</h6>
                   <span className='text-gray-700 text-sm md:text-base'>These people love us</span>
                   <div className='w-full flex items-center mt-2'>
                     <AnimatedTooltip items={people1} />
@@ -280,7 +251,7 @@ function LandingPage() {
                 </section>
                 <section className='flex flex-col md:translate-y-14'>
                   <h3 className='text-4xl md:text-6xl font-bold'>12</h3>
-                  <h6 className='text-lg md:text-xl'>Projects in work</h6>
+                  <h6 className='text-lg md:text-xl'>Interviews in work</h6>
                   <span className='text-gray-700 text-sm md:text-base'>What we do right now</span>
                   <div className='w-full flex items-center mt-2'>
                     <AnimatedTooltip items={people1} />
@@ -311,7 +282,7 @@ function LandingPage() {
           </div>
         </div>
 
-        {/* Stats Section */}
+     
 
       </section>
 
@@ -339,7 +310,7 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="w-full rounded-t-2xl mt-0 dark:bg-zinc-950" ref={ref}>
+      <section className="w-full rounded-t-2xl relative mt-0 ">
         {/* <div className="max-w-7xl mx-auto px-4 py-16 md:h-[450px] flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="w-full text-center md:text-left">
             <h3 className="text-2xl md:text-4xl font-bold leading-tight mb-4 text-emerald-500 dark:text-white">
@@ -369,18 +340,12 @@ function LandingPage() {
           </div>
         </div> */}
         <GoogleGeminiEffect
-        title={"Want Custom Features"}
-          pathLengths={[
-            pathLengthFirst,
-            pathLengthSecond,
-            pathLengthThird,
-            pathLengthFourth,
-            pathLengthFifth,
-          ]}
-         
+          title={"Want Custom Features ?"}
         />
       </section>
-      {/* <Footer /> */}
+      <section className='w-full translate-y-96'>
+        <Footer />
+      </section>
     </div>
   );
 }

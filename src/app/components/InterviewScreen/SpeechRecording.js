@@ -14,20 +14,18 @@ export const useFullTranscriptSpeechToText = () => {
   const silenceTimeoutRef = useRef(null);
   const lastSpeechTimeRef = useRef(Date.now());
 
-  // Check browser support
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     setIsSupported(!!SpeechRecognition);
   }, []);
 
-  // Initialize Speech Recognition with optimal settings
   const createSpeechRecognition = useCallback(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return null;
 
     const recognition = new SpeechRecognition();
     
-    // Optimal configuration for full transcript capture
+  
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
@@ -106,7 +104,7 @@ export const useFullTranscriptSpeechToText = () => {
     }
   }, [isRecording]);
 
-  // Start speech recognition
+  
   const startRecognition = useCallback(() => {
     const recognition = createSpeechRecognition();
     if (!recognition) return;
@@ -118,7 +116,7 @@ export const useFullTranscriptSpeechToText = () => {
     recognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
       
-      // Handle different error types
+      
       switch (event.error) {
         case 'no-speech':
           // Restart on no speech
@@ -166,7 +164,7 @@ export const useFullTranscriptSpeechToText = () => {
     }
   }, [createSpeechRecognition, handleResults, isRecording, restartRecognition]);
 
-  // Start recording
+
   const startRecording = useCallback(() => {
     if (!isSupported) {
       setError('Speech recognition not supported');
@@ -184,14 +182,14 @@ export const useFullTranscriptSpeechToText = () => {
 
     // Set up periodic restart to prevent timeouts
     restartTimeoutRef.current = setInterval(() => {
-      if (Date.now() - lastSpeechTimeRef.current > 10000) { // 10 seconds without speech
+      if (Date.now() - lastSpeechTimeRef.current > 10000) { 
         console.log('Periodic restart...');
         restartRecognition();
       }
     }, 15000); // Check every 15 seconds
   }, [isSupported, startRecognition, restartRecognition]);
 
-  // Stop recording
+  
   const stopRecording = useCallback(() => {
     setIsRecording(false);
     isRestartingRef.current = false;
@@ -211,7 +209,7 @@ export const useFullTranscriptSpeechToText = () => {
       silenceTimeoutRef.current = null;
     }
 
-    // Ensure we capture any remaining transcript
+    
     setFullTranscript(prev => {
       const finalText = prev + transcriptBufferRef.current;
       transcriptBufferRef.current = '';
@@ -219,14 +217,14 @@ export const useFullTranscriptSpeechToText = () => {
     });
   }, []);
 
-  // Clear transcript
+
   const clearTranscript = useCallback(() => {
     setFullTranscript('');
     setCurrentTranscript('');
     transcriptBufferRef.current = '';
   }, []);
 
-  // Cleanup on unmount
+  
   useEffect(() => {
     return () => {
       if (recognitionRef.current) {

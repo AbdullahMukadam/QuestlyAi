@@ -2,8 +2,8 @@ import Razorpay from 'razorpay';
 import connectToDb from "@/database/connectToDb";
 
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID, // Your Razorpay Key ID
-    key_secret: process.env.RAZORPAY_KEY_SECRET, // Your Razorpay Key Secret
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET, 
 });
 
 export async function POST(req) {
